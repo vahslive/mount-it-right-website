@@ -1004,18 +1004,24 @@
     // of empty page above the keyboard. Freezing the page in place while
     // focused (a standard "scroll lock") sidesteps that broken native
     // behavior entirely, since there's nothing left for it to miscalculate.
-    let lockedScrollY = 0;
+    // We also pull the booking section to the very top of the screen first,
+    // so the address field and its suggestions stay clear of the keyboard.
+    let originalScrollY = 0;
+    let lockedTargetY = 0;
     let isScrollLocked = false;
     addrInput.addEventListener('focus', () => {
       // The widget fires internal focus/blur pairs when a prediction is
-      // tapped — ignore repeat focus events so we don't overwrite the real
-      // saved position with 0 (which is what window.scrollY reads while
-      // already locked).
+      // tapped — ignore repeat focus events so this doesn't re-trigger.
       if(isScrollLocked) return;
       isScrollLocked = true;
-      lockedScrollY = window.scrollY;
+      originalScrollY = window.scrollY;
+
+      const bookSection = document.getElementById('book');
+      const rect = bookSection.getBoundingClientRect();
+      lockedTargetY = Math.max(0, rect.top + window.scrollY);
+
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.top = `-${lockedTargetY}px`;
       document.body.style.left = '0';
       document.body.style.right = '0';
     });
@@ -1030,7 +1036,7 @@
         document.body.style.top = '';
         document.body.style.left = '';
         document.body.style.right = '';
-        window.scrollTo(0, lockedScrollY);
+        window.scrollTo(0, lockedTargetY);
       }, 60);
     });
   }
