@@ -1016,7 +1016,7 @@
       isScrollLocked = true;
       originalScrollY = window.scrollY;
 
-      const bookSection = document.getElementById('book');
+      const bookSection = document.querySelector('.book-shell');
       const rect = bookSection.getBoundingClientRect();
       lockedTargetY = Math.max(0, rect.top + window.scrollY);
 
