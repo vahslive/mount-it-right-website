@@ -22,7 +22,6 @@
     --mono: 'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
   body{
     background:var(--paper); color:var(--ink); font-family:var(--body);
     line-height:1.55; -webkit-font-smoothing:antialiased;
@@ -1019,7 +1018,16 @@
     stepMeta.textContent = `Step ${n} of ${TOTAL_STEPS} — ${STEP_TITLES[n]}`;
     if(n === 8) renderCalendar();
     if(n === 9) renderFinalQuote();
-    document.querySelector('.book-shell').scrollIntoView({behavior:'smooth', block:'start'});
+
+    // Only reposition the page if the form has actually scrolled out of view —
+    // once the user is settled on the booking card, stepping through
+    // questions shouldn't keep yanking the page back to the top.
+    const shell = document.querySelector('.book-shell');
+    const rect = shell.getBoundingClientRect();
+    const outOfView = rect.top < 0 || rect.top > window.innerHeight * 0.5;
+    if(outOfView){
+      shell.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
   }
 
   function renderFinalQuote(){
