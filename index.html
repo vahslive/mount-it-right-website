@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mount It Right — TV Mounting in Phoenix, AZ</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='none' stroke='%230A0A0C' stroke-width='1.4'/%3E%3Ccircle cx='20' cy='20' r='5' fill='%232F5EFF'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -996,6 +996,28 @@
       selectedAddress = null;
       next1.disabled = true;
       addrConfirmed.classList.remove('show');
+    });
+
+    // ---- iOS Safari blank-space-above-keyboard workaround ----
+    // iOS Safari sometimes miscalculates its own scroll-into-view when the
+    // keyboard opens on a custom element like this one, leaving a large gap
+    // of empty page above the keyboard. Freezing the page in place while
+    // focused (a standard "scroll lock") sidesteps that broken native
+    // behavior entirely, since there's nothing left for it to miscalculate.
+    let lockedScrollY = 0;
+    addrInput.addEventListener('focus', () => {
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    });
+    addrInput.addEventListener('blur', () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, lockedScrollY);
     });
   }
 
