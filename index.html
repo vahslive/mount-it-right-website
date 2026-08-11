@@ -187,14 +187,25 @@
     transition:border-color .2s, background .2s;
   }
   .field input:focus{ outline:none; border-color:var(--signal); background:var(--paper); }
-  .pac-container{
-    font-family:var(--body) !important; border:1px solid var(--line) !important;
-    border-radius:14px !important; box-shadow:0 20px 40px rgba(10,10,12,0.12) !important; margin-top:8px !important;
+  gmp-place-autocomplete{
+    display:block; width:100%;
+    --gmp-mat-color-surface: var(--mist);
+    --gmp-mat-color-on-surface: var(--ink);
+    --gmp-mat-color-outline: var(--line);
+    --gmp-mat-color-primary: var(--signal);
+    font-family:var(--body); font-size:16px;
+    background-color:var(--mist);
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    color-scheme:light;
+    transition:border-color .2s, background-color .2s;
   }
-  .pac-item{ padding:12px 16px !important; font-size:14px !important; border-top-color:var(--line) !important; }
-  .pac-item:hover{ background:var(--mist) !important; }
-  .pac-item-query{ font-size:14px !important; color:var(--ink) !important; }
-  .pac-matched{ font-weight:600 !important; }
+  gmp-place-autocomplete:focus-within{
+    border-color:var(--signal); background-color:var(--paper);
+  }
+  gmp-place-autocomplete::part(input){
+    padding:17px 18px !important; font-size:16px !important; font-family:var(--body) !important;
+  }
 
   .addr-confirmed{
     margin-top:12px; padding:14px 16px; border:1px solid var(--line); border-radius:12px;
@@ -431,7 +442,7 @@
           <h3>Where's the install?</h3>
           <p class="hint">Start typing your street address — we'll confirm your service area automatically.</p>
           <div class="field">
-            <input type="text" id="addrInput" placeholder="e.g. 4021 E Camelback Rd" autocomplete="off">
+            <gmp-place-autocomplete id="addrInput" placeholder="e.g. 4021 E Camelback Rd"></gmp-place-autocomplete>
           </div>
           <div class="addr-confirmed" id="addrConfirmed">
             <span>✓</span><span id="addrConfirmedText"></span>
@@ -917,13 +928,13 @@
     });
   });
 
-  // ---------------- GOOGLE PLACES AUTOCOMPLETE (live) ----------------
+  // ---------------- GOOGLE PLACES AUTOCOMPLETE (live, new Places API) ----------------
   const PHX_CENTER = { lat: 33.4484, lng: -112.0740 }; // downtown Phoenix
   const SERVICE_RADIUS_MILES = 35; // covers the Valley suburbs listed in the coverage section
 
   let selectedAddress = null;
 
-  const addrInput = document.getElementById('addrInput');
+  const addrInput = document.getElementById('addrInput'); // <gmp-place-autocomplete> element
   const addrConfirmed = document.getElementById('addrConfirmed');
   const addrConfirmedText = document.getElementById('addrConfirmedText');
   const next1 = document.getElementById('next1');
@@ -937,34 +948,32 @@
   }
 
   function initAutocomplete(){
-    const autocomplete = new google.maps.places.Autocomplete(addrInput, {
-      componentRestrictions: { country: 'us' },
-      fields: ['formatted_address', 'geometry', 'address_components'],
-      types: ['address'],
-      // Biases results toward the Phoenix metro without hard-blocking outside typing
-      bounds: new google.maps.LatLngBounds(
-        { lat: PHX_CENTER.lat - 0.6, lng: PHX_CENTER.lng - 0.7 },
-        { lat: PHX_CENTER.lat + 0.6, lng: PHX_CENTER.lng + 0.7 }
-      ),
-    });
+    // Bias (not hard-restrict) results toward the Phoenix metro
+    addrInput.includedRegionCodes = ['us'];
+    addrInput.locationBias = {
+      radius: 48000, // ~30 miles, in meters
+      center: { lat: PHX_CENTER.lat, lng: PHX_CENTER.lng },
+    };
 
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if(!place.geometry){
-        // User pressed enter without picking a suggestion — no usable coordinates
+    addrInput.addEventListener('gmp-select', async ({ placePrediction }) => {
+      const place = placePrediction.toPlace();
+      await place.fetchFields({ fields: ['formattedAddress', 'location'] });
+
+      if(!place.location){
         next1.disabled = true;
         addrConfirmed.classList.remove('show');
         return;
       }
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
+
+      const lat = place.location.lat();
+      const lng = place.location.lng();
       const distance = milesBetween(PHX_CENTER.lat, PHX_CENTER.lng, lat, lng);
       const inArea = distance <= SERVICE_RADIUS_MILES;
 
-      selectedAddress = { line: place.formatted_address, lat, lng, inArea };
+      selectedAddress = { line: place.formattedAddress, lat, lng, inArea };
 
       if(inArea){
-        addrConfirmedText.textContent = `Confirmed in service area — ${place.formatted_address}`;
+        addrConfirmedText.textContent = `Confirmed in service area — ${place.formattedAddress}`;
         addrConfirmed.style.background = 'rgba(47,179,124,0.08)';
         addrConfirmed.style.borderColor = 'var(--level)';
       } else {
@@ -975,13 +984,16 @@
       addrConfirmed.classList.add('show');
       next1.disabled = false;
     });
-  }
 
-  addrInput.addEventListener('input', () => {
-    selectedAddress = null;
-    next1.disabled = true;
-    addrConfirmed.classList.remove('show');
-  });
+    // Best-effort: reset state if the person edits the field after selecting.
+    // (Not all browsers bubble a plain 'input' event through the shadow DOM,
+    // so this is a nice-to-have rather than something the flow depends on.)
+    addrInput.addEventListener('input', () => {
+      selectedAddress = null;
+      next1.disabled = true;
+      addrConfirmed.classList.remove('show');
+    });
+  }
 
   // ---------------- PRICING CARDS -> JUMP TO BOOKING ----------------
   document.querySelectorAll('.svc').forEach(card => {
