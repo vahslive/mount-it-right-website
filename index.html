@@ -39,6 +39,11 @@
     background:rgba(255,255,255,0.82); backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
+  @media (max-width:760px){
+    /* Sticky headers fight with the virtual keyboard on mobile and can cause
+       the page to scroll to a blank area. Not sticky is safer here. */
+    header{ position:static; }
+  }
   .nav{ display:flex; align-items:center; justify-content:space-between; padding:20px 32px; max-width:1120px; margin:0 auto; }
   .tv-logo{ display:inline-flex; align-items:center; }
   .tv-frame{
@@ -1196,6 +1201,8 @@
     if(!stickyCta || !heroEl || !bookEl) return;
 
     let bookVisible = false;
+    let keyboardOpen = false;
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => { bookVisible = entry.isIntersecting; });
       update();
@@ -1203,10 +1210,32 @@
     observer.observe(bookEl);
 
     function update(){
+      if(keyboardOpen){ stickyCta.classList.remove('show'); return; }
       const pastHero = window.scrollY > heroEl.offsetTop + heroEl.offsetHeight * 0.6;
       stickyCta.classList.toggle('show', pastHero && !bookVisible);
     }
     window.addEventListener('scroll', update, { passive:true });
+
+    // A fixed-position bar fighting the virtual keyboard is a common source
+    // of mobile scroll glitches — just hide it while a form field is focused.
+    document.addEventListener('focusin', (e) => {
+      if(e.target.closest && e.target.closest('.book-shell')){
+        keyboardOpen = true;
+        update();
+      }
+    });
+    document.addEventListener('focusout', (e) => {
+      if(e.target.closest && e.target.closest('.book-shell')){
+        setTimeout(() => {
+          const active = document.activeElement;
+          if(!active || !active.closest || !active.closest('.book-shell')){
+            keyboardOpen = false;
+            update();
+          }
+        }, 50);
+      }
+    });
+
     update();
   })();
 
