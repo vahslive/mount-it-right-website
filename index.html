@@ -1005,7 +1005,14 @@
     // focused (a standard "scroll lock") sidesteps that broken native
     // behavior entirely, since there's nothing left for it to miscalculate.
     let lockedScrollY = 0;
+    let isScrollLocked = false;
     addrInput.addEventListener('focus', () => {
+      // The widget fires internal focus/blur pairs when a prediction is
+      // tapped — ignore repeat focus events so we don't overwrite the real
+      // saved position with 0 (which is what window.scrollY reads while
+      // already locked).
+      if(isScrollLocked) return;
+      isScrollLocked = true;
       lockedScrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${lockedScrollY}px`;
@@ -1013,11 +1020,18 @@
       document.body.style.right = '0';
     });
     addrInput.addEventListener('blur', () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      window.scrollTo(0, lockedScrollY);
+      // Give the widget a beat in case it's about to refocus internally
+      // (e.g. right after a prediction tap) before we actually unlock.
+      setTimeout(() => {
+        if(document.activeElement === addrInput) return; // refocused — stay locked
+        if(!isScrollLocked) return;
+        isScrollLocked = false;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        window.scrollTo(0, lockedScrollY);
+      }, 60);
     });
   }
 
