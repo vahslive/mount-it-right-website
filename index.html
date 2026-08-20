@@ -148,6 +148,19 @@
   .hero-stats b{ display:block; font-family:var(--display); font-weight:700; font-size:28px; }
   .hero-stats span{ font-size:13.5px; color:var(--ink-soft); }
 
+  .hero-illo{
+    max-width:640px; margin:64px auto 0; background:var(--mist); border-radius:24px;
+    overflow:hidden;
+  }
+  .hero-illo img{ display:block; width:100%; aspect-ratio:4/3; object-fit:cover; }
+
+  .photo-banner{ padding:0; }
+  .photo-banner .wrap{ max-width:640px; }
+  .photo-banner img{
+    display:block; width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:24px;
+  }
+  @media (max-width:600px){ .photo-banner img{ border-radius:16px; } }
+
   .availability-note{
     display:inline-flex; align-items:center; gap:7px; justify-content:center;
     font-size:13px; color:var(--ink-soft); margin:0 0 60px;
@@ -314,6 +327,7 @@
   }
   .svc:hover{ background:var(--signal-soft); transform:translateY(-3px); }
   .svc:active{ transform:translateY(-1px); }
+  .svc-icon{ width:26px; height:26px; color:var(--signal); margin-bottom:16px; display:block; }
   .svc h3{ font-size:18px; font-weight:600; margin-bottom:8px; }
   .svc p{ font-size:14px; color:var(--ink-soft); margin-bottom:20px; }
   .svc .price{ font-family:var(--mono); font-weight:500; font-size:17px; display:inline; }
@@ -418,6 +432,10 @@
       <div><b>1,400+</b><span>TVs mounted</span></div>
       <div><b>4.9★</b><span>average rating</span></div>
       <div><b>3-yr</b><span>guarantee</span></div>
+    </div>
+
+    <div class="hero-illo">
+      <img src="https://images.pexels.com/photos/6020432/pexels-photo-6020432.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Flat screen TV mounted on wall over a wooden console" loading="lazy">
     </div>
   </div>
 </section>
@@ -667,13 +685,37 @@
       <p>No estimates that change at the door. Answer a few questions at booking and see your exact price before you confirm.</p>
     </div>
     <div class="services-grid">
-      <div class="svc"><h3>TV Mounting</h3><p>Priced by screen size, from a standard TV to a 65″+ with a second technician.</p><div class="price">$89–$189</div><div class="add">Start your quote →</div></div>
-      <div class="svc"><h3>Mount &amp; Bracket</h3><p>Don't have one? We bring a fixed, tilting, or full-motion mount.</p><div class="price">$0–$89</div><div class="add">Start your quote →</div></div>
-      <div class="svc"><h3>Wall Type</h3><p>Drywall included. Brick, concrete or stucco need different anchors.</p><div class="price">$0–$59</div><div class="add">Start your quote →</div></div>
-      <div class="svc"><h3>Cable Concealment</h3><p>Leave cables exposed, sleeve them, or run them inside the wall.</p><div class="price">$0–$99</div><div class="add">Start your quote →</div></div>
-      <div class="svc"><h3>Old TV Removal</h3><p>We'll take down your existing TV and haul it away.</p><div class="price">+$49</div><div class="add">Start your quote →</div></div>
-      <div class="svc"><h3>Add-ons</h3><p>Soundbar install, above-fireplace mounting, or a wall shelf.</p><div class="price"><small>from</small> $49</div><div class="add">Start your quote →</div></div>
+      <div class="svc">
+        <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg>
+        <h3>TV Mounting</h3><p>Priced by screen size, from a standard TV to a 65″+ with a second technician.</p><div class="price">$89–$189</div><div class="add">Start your quote →</div>
+      </div>
+      <div class="svc">
+        <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16"/><path d="M4 15l4-4 3 3 5-6 4 5"/></svg>
+        <h3>Mount &amp; Bracket</h3><p>Don't have one? We bring a fixed, tilting, or full-motion mount.</p><div class="price">$0–$89</div><div class="add">Start your quote →</div>
+      </div>
+      <div class="svc">
+        <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>
+        <h3>Wall Type</h3><p>Drywall included. Brick, concrete or stucco need different anchors.</p><div class="price">$0–$59</div><div class="add">Start your quote →</div>
+      </div>
+      <div class="svc">
+        <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7V4M15 7V4M6 7h12v3a6 6 0 0 1-12 0V7z"/><line x1="10" y1="16" x2="10" y2="21"/></svg>
+        <h3>Cable Concealment</h3><p>Leave cables exposed, sleeve them, or run them inside the wall.</p><div class="price">$0–$99</div><div class="add">Start your quote →</div>
+      </div>
+      <div class="svc">
+        <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="11"/><path d="M9 20h6M12 15v5"/><path d="M3 3l18 18"/></svg>
+        <h3>Old TV Removal</h3><p>We'll take down your existing TV and haul it away.</p><div class="price">+$49</div><div class="add">Start your quote →</div>
+      </div>
+      <div class="svc">
+        <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="5" rx="2.5"/><path d="M17 8a5 5 0 0 1 0 9"/><path d="M19.5 6a8 8 0 0 1 0 13"/></svg>
+        <h3>Add-ons</h3><p>Soundbar install, above-fireplace mounting, or a wall shelf.</p><div class="price"><small>from</small> $49</div><div class="add">Start your quote →</div>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="photo-banner">
+  <div class="wrap">
+    <img src="https://images.pexels.com/photos/6316063/pexels-photo-6316063.jpeg?auto=compress&cs=tinysrgb&w=1800" alt="Television mounted on white wall above a round vase" loading="lazy">
   </div>
 </section>
 
@@ -689,6 +731,12 @@
       <div class="why-item"><b>$0</b><span>Trip fees, cancellation fees, or surprise pricing.</span></div>
       <div class="why-item"><b>100%</b><span>Studs located and used — not just drywall anchors.</span></div>
     </div>
+  </div>
+</section>
+
+<section class="photo-banner">
+  <div class="wrap">
+    <img src="https://images.pexels.com/photos/6934267/pexels-photo-6934267.jpeg?auto=compress&cs=tinysrgb&w=1800" alt="Spacious modern living room with wall-mounted TV, sofa and glass table" loading="lazy">
   </div>
 </section>
 
@@ -1089,12 +1137,13 @@
   }
 
   // ---------------- STEP 8: SCHEDULING CALENDAR ----------------
-  // Mock booking database. Swap this for a real fetch to your bookings API —
-  // shape stays the same: { 'YYYY-MM-DD': ['9:00 AM', '11:00 AM', ...] } of TAKEN slots.
+  // TAKEN holds { 'YYYY-MM-DD': ['9:00 AM', ...] } — real data from the API,
+  // with a mock fallback so the site still works before the backend is live.
   const ALL_SLOTS = ['9:00 AM','11:00 AM','1:00 PM','3:00 PM','5:00 PM'];
-  const MOCK_TAKEN = {}; // filled in generateMockAvailability()
+  const MOCK_TAKEN = {};
   let selectedSlot = null;
   let calendarRendered = false;
+  let availabilityReady = false;
 
   function generateMockAvailability(){
     const today = new Date();
@@ -1108,9 +1157,25 @@
       MOCK_TAKEN[key] = shuffled.slice(0, takenCount);
     }
   }
-  generateMockAvailability();
 
-  // Hero availability note — reuses the same mock calendar data so the
+  async function loadAvailability(){
+    try{
+      const res = await fetch('/api/availability');
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      Object.assign(MOCK_TAKEN, data.taken || {});
+    } catch(err){
+      // Backend not deployed yet (or offline) — fall back to mock data so
+      // the calendar and hero note still work for local testing/demos.
+      generateMockAvailability();
+    }
+    availabilityReady = true;
+    renderAvailabilityNote();
+    if(calendarRendered){ calendarRendered = false; renderCalendar(); }
+  }
+  loadAvailability();
+
+  // Hero availability note — reuses the same live calendar data so the
   // message on-screen always matches what the calendar step actually shows.
   function renderAvailabilityNote(){
     const today = new Date();
@@ -1228,11 +1293,34 @@
     fill.style.width = '100%';
     stepMeta.textContent = 'Booked!';
 
-    // ---- Where booking data would be sent ----
-    // fetch('/api/bookings', { method:'POST', body: JSON.stringify({
-    //   address: selectedAddress, selections, addons:[...selections.addons],
-    //   slot: selectedSlot, name: nameInput.value, phone: phoneInput.value, total
-    // })});
+    const payload = {
+      address: selectedAddress ? selectedAddress.line : null,
+      lat: selectedAddress ? selectedAddress.lat : null,
+      lng: selectedAddress ? selectedAddress.lng : null,
+      inServiceArea: selectedAddress ? selectedAddress.inArea : null,
+      dismount: selections.dismount,
+      size: selections.size,
+      bracket: selections.bracket,
+      wall: selections.wall,
+      wires: selections.wires,
+      addons: [...selections.addons],
+      total,
+      date: selectedSlot ? selectedSlot.date : null,
+      time: selectedSlot ? selectedSlot.time : null,
+      name: nameInput.value,
+      phone: phoneInput.value,
+    };
+
+    fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch((err) => {
+      // The person already sees the confirmation screen — if the backend
+      // isn't deployed yet or the request fails, don't disrupt their
+      // experience, just log it for debugging.
+      console.warn('Booking save failed:', err);
+    });
   }
 
   // ---------------- STICKY MOBILE CTA ----------------
