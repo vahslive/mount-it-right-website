@@ -258,6 +258,32 @@
   .opt-card[data-shape="radio"] .mark{ border-radius:50%; }
   .opt-card[data-shape="check"] .mark{ border-radius:5px; }
   .opt-card.picked .mark{ background:var(--signal); border-color:var(--signal); }
+
+  .qty-row{ display:flex; gap:10px; }
+  .qty-btn{
+    flex:1; padding:14px; border-radius:14px; border:1.5px solid var(--line); background:var(--paper);
+    font-family:var(--body); font-size:15px; font-weight:600; color:var(--ink); cursor:pointer; transition:all .15s;
+  }
+  .qty-btn:hover{ border-color:var(--ink-soft); }
+  .qty-btn.active{ border-color:var(--signal); background:var(--signal-soft); color:var(--signal); }
+
+  .btn-add-tv{
+    background:var(--signal-soft); color:var(--signal); border:1.5px solid transparent; font-weight:600;
+    font-size:14.5px; padding:14px 18px; border-radius:100px; cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+  .btn-add-tv:hover{ background:var(--signal); color:var(--paper); }
+  .step-nav{ flex-wrap:wrap; row-gap:10px; }
+
+  .tv-summary{ margin-top:22px; }
+  .tv-summary-item{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:12px 16px; background:var(--mist); border-radius:12px; margin-bottom:8px; font-size:13.5px;
+  }
+  .tv-summary-item .tv-label{ font-weight:600; }
+  .tv-summary-item .tv-price{ font-family:var(--mono); color:var(--ink-soft); white-space:nowrap; }
+  .tv-summary-item .tv-remove{
+    background:none; border:none; color:var(--ink-soft); font-size:12px; cursor:pointer; text-decoration:underline; padding:0;
+  }
   .opt-card .mark::after{ content:''; display:none; }
   .opt-card[data-shape="radio"] .mark::after{ width:8px; height:8px; border-radius:50%; background:#fff; }
   .opt-card[data-shape="check"] .mark::after{ width:9px; height:5px; border-left:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(-45deg) translateY(-1px); }
@@ -517,6 +543,9 @@
               <div class="right"><span class="price">$149</span><div class="mark"></div></div>
             </div>
           </div>
+
+          <p class="hint" style="margin-top:20px; color:var(--signal);">Have more than one TV? You'll be able to add it right after this — 15% off each additional TV.</p>
+
           <div class="step-nav">
             <button class="btn-back" onclick="goStep(2)">← Back</button>
             <button class="btn-next" id="next3" disabled onclick="goStep(4)">Continue</button>
@@ -593,8 +622,10 @@
               <div class="right"><span class="price">+$99</span><div class="mark"></div></div>
             </div>
           </div>
+          <div id="tvSummary6" class="tv-summary"></div>
           <div class="step-nav">
             <button class="btn-back" onclick="goStep(5)">← Back</button>
+            <button class="btn-add-tv" onclick="addAnotherTv()">+ Add another TV</button>
             <button class="btn-next" id="next6" disabled onclick="goStep(7)">Continue</button>
           </div>
         </div>
@@ -602,7 +633,7 @@
         <!-- STEP 7: ADD-ONS (multi-select) -->
         <div class="step" id="step-7">
           <h3>Anything else?</h3>
-          <p class="hint">Optional — pick as many as you need, or press Continue to skip.</p>
+          <p class="hint">Optional — pick as many as you need, or press Continue to skip. These apply once, not per TV.</p>
           <div class="opt-grid">
             <div class="opt-card" data-shape="check" data-step="addons" data-id="addon_soundbar" data-price="79">
               <span class="label">Soundbar installation</span>
@@ -617,8 +648,11 @@
               <div class="right"><span class="price">+$49</span><div class="mark"></div></div>
             </div>
           </div>
+
+          <div id="tvSummary7" class="tv-summary"></div>
           <div class="step-nav">
             <button class="btn-back" onclick="goStep(6)">← Back</button>
+            <button class="btn-add-tv" onclick="addAnotherTv()">+ Add another TV</button>
             <button class="btn-next" id="next7" onclick="goStep(8)">Continue</button>
           </div>
         </div>
@@ -953,17 +987,74 @@
   };
 
   const selections = { dismount:null, size:null, bracket:null, wall:null, wires:null, addons:new Set() };
+  const tvs = []; // finalized TVs added via "+ Add another TV" (current `selections` holds the TV in progress)
 
-  function currentTotal(){
-    let total = 0;
+  function tvPrice(tv){
+    let sum = 0;
     ['dismount','size','bracket','wall','wires'].forEach(key => {
-      const picked = selections[key];
+      const picked = tv[key];
       if(!picked) return;
       const opt = STEP_DATA[key].options.find(o => o.id === picked);
-      if(opt) total += opt.price;
+      if(opt) sum += opt.price;
     });
+    return sum;
+  }
+
+  function currentTotal(){
+    const allTvs = [...tvs];
+    if(selections.size) allTvs.push({ ...selections }); // include the TV currently being configured
+
+    // Highest-priced TV counts at full price; every other TV (regardless of
+    // order added) is 15% off — so the discount always favors the customer.
+    const prices = allTvs.map(tvPrice).sort((a, b) => b - a);
+    let total = prices.reduce((sum, p, i) => sum + (i === 0 ? p : p * 0.85), 0);
+
     STEP_DATA.addons.options.forEach(o => { if(selections.addons.has(o.id)) total += o.price; });
-    return total;
+    return Math.round(total);
+  }
+
+  function resetTvFields(){
+    selections.dismount = null; selections.size = null; selections.bracket = null;
+    selections.wall = null; selections.wires = null;
+    ['dismount','size','bracket','wall','wires'].forEach(key => {
+      document.querySelectorAll(`.opt-card[data-step="${key}"]`).forEach(c => c.classList.remove('picked'));
+    });
+    ['2','4','5','6'].forEach(n => {
+      const btn = document.getElementById('next' + n);
+      if(btn) btn.disabled = true;
+    });
+    const next3 = document.getElementById('next3');
+    if(next3) next3.disabled = true;
+  }
+
+  function renderTvSummary(){
+    const html = tvs.map((tv, i) => `
+      <div class="tv-summary-item">
+        <span class="tv-label">TV ${i+1} added${i > 0 ? ' (15% off likely applied)' : ''}</span>
+        <span class="tv-price">$${tvPrice(tv)}</span>
+        <button class="tv-remove" onclick="removeTv(${i})">Remove</button>
+      </div>
+    `).join('');
+    document.getElementById('tvSummary6').innerHTML = html;
+    document.getElementById('tvSummary7').innerHTML = html;
+  }
+
+  function removeTv(index){
+    tvs.splice(index, 1);
+    renderTvSummary();
+    updateMiniTotal();
+  }
+
+  function addAnotherTv(){
+    if(!selections.size){
+      alert("Finish configuring this TV first (at least pick a size) before adding another.");
+      return;
+    }
+    tvs.push({ ...selections });
+    resetTvFields();
+    renderTvSummary();
+    updateMiniTotal();
+    goStep(2);
   }
 
   function updateMiniTotal(){
@@ -1291,6 +1382,8 @@
   phoneInput.addEventListener('input', validateContact);
   smsConsent.addEventListener('change', validateContact);
 
+  const SIZE_LABELS = { size_under50:'Up to 50″', size_51_65:'51–65″', size_65_2tech:'65″+ (2 tech)', size_65_1tech:'65″+ (1 tech)' };
+
   function submitBooking(){
     const total = currentTotal();
     const scheduleText = selectedSlot
@@ -1309,22 +1402,37 @@
     fill.style.width = '100%';
     stepMeta.textContent = 'Booked!';
 
+    // Combine finalized TVs with whatever's currently on-screen, then use
+    // the highest-priced one for the structured columns other parts of the
+    // system (admin table, master app) already know how to read.
+    const allTvs = [...tvs];
+    if(selections.size) allTvs.push({ ...selections });
+    allTvs.sort((a, b) => tvPrice(b) - tvPrice(a));
+    const primary = allTvs[0] || selections;
+
+    const tvNotes = allTvs.length > 1
+      ? `${allTvs.length} TVs this visit: ` + allTvs.map((tv, i) =>
+          `#${i+1} ${SIZE_LABELS[tv.size] || 'size not set'} ($${tvPrice(tv)}${i > 0 ? ', 15% off' : ''})`
+        ).join('; ') + '.'
+      : null;
+
     const payload = {
       address: selectedAddress ? selectedAddress.line : null,
       lat: selectedAddress ? selectedAddress.lat : null,
       lng: selectedAddress ? selectedAddress.lng : null,
       inServiceArea: selectedAddress ? selectedAddress.inArea : null,
-      dismount: selections.dismount,
-      size: selections.size,
-      bracket: selections.bracket,
-      wall: selections.wall,
-      wires: selections.wires,
+      dismount: primary.dismount,
+      size: primary.size,
+      bracket: primary.bracket,
+      wall: primary.wall,
+      wires: primary.wires,
       addons: [...selections.addons],
       total,
       date: selectedSlot ? selectedSlot.date : null,
       time: selectedSlot ? selectedSlot.time : null,
       name: nameInput.value,
       phone: phoneInput.value,
+      notes: tvNotes,
     };
 
     fetch(API_BASE + '/api/bookings', {
