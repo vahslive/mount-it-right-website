@@ -649,6 +649,15 @@
             <input type="tel" id="phoneInput" placeholder="(602) 555-0110">
           </div>
 
+          <label style="display:flex; align-items:flex-start; gap:10px; font-size:12.5px; color:var(--ink-soft); line-height:1.55; margin:4px 0 16px; cursor:pointer;">
+            <input type="checkbox" id="smsConsent" style="margin-top:3px; flex:none; width:16px; height:16px;">
+            <span>
+              Yes, I'd like to receive automated SMS updates from Mount It Right about my booking (confirmation, technician en-route, and receipt link) — up to 3 messages per booking. Message and data rates may apply. Reply HELP for help or STOP to cancel at any time. Consent is not required to make a purchase.
+              <a href="terms.html" target="_blank" style="color:var(--signal);">Terms of Service</a> |
+              <a href="privacy.html" target="_blank" style="color:var(--signal);">Privacy Policy</a>
+            </span>
+          </label>
+
           <div class="final-quote">
             <span class="lbl">Your quote</span>
             <div class="amt" id="finalAmt">$0</div>
@@ -816,6 +825,11 @@
 </div>
 
 <script>
+  // All booking/availability data lives on the CRM backend (sketrix.com),
+  // not on this marketing site — this is the only line to change if that
+  // ever moves.
+  const API_BASE = 'https://sketrix.com';
+
   // ---------------- DRAGGABLE LEVEL DOT (spring physics) ----------------
   (function(){
     const track = document.getElementById('levelTrack');
@@ -1160,7 +1174,7 @@
 
   async function loadAvailability(){
     try{
-      const res = await fetch('/api/availability');
+      const res = await fetch(API_BASE + '/api/availability');
       if(!res.ok) throw new Error('bad response');
       const data = await res.json();
       Object.assign(MOCK_TAKEN, data.taken || {});
@@ -1266,14 +1280,16 @@
   // ---------------- STEP 9: CONTACT ----------------
   const nameInput = document.getElementById('nameInput');
   const phoneInput = document.getElementById('phoneInput');
+  const smsConsent = document.getElementById('smsConsent');
   const next9 = document.getElementById('next9');
 
   function validateContact(){
     const digits = phoneInput.value.replace(/\D/g,'');
-    next9.disabled = !(nameInput.value.trim().length > 1 && digits.length >= 10);
+    next9.disabled = !(nameInput.value.trim().length > 1 && digits.length >= 10 && smsConsent.checked);
   }
   nameInput.addEventListener('input', validateContact);
   phoneInput.addEventListener('input', validateContact);
+  smsConsent.addEventListener('change', validateContact);
 
   function submitBooking(){
     const total = currentTotal();
@@ -1311,7 +1327,7 @@
       phone: phoneInput.value,
     };
 
-    fetch('/api/bookings', {
+    fetch(API_BASE + '/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
