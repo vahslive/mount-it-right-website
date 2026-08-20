@@ -495,6 +495,7 @@
           <div class="addr-confirmed" id="addrConfirmed">
             <span>✓</span><span id="addrConfirmedText"></span>
           </div>
+          <p class="hint" style="margin-top:16px; color:var(--signal);">Mounting more than one TV today? You'll get 15% off each additional TV — we'll ask you about it as you go.</p>
           <div class="step-nav">
             <span></span>
             <button class="btn-next" id="next1" disabled onclick="goStep(2)">Continue</button>
@@ -625,7 +626,6 @@
           <div id="tvSummary6" class="tv-summary"></div>
           <div class="step-nav">
             <button class="btn-back" onclick="goStep(5)">← Back</button>
-            <button class="btn-add-tv" onclick="addAnotherTv()">+ Add another TV</button>
             <button class="btn-next" id="next6" disabled onclick="goStep(7)">Continue</button>
           </div>
         </div>
@@ -652,8 +652,28 @@
           <div id="tvSummary7" class="tv-summary"></div>
           <div class="step-nav">
             <button class="btn-back" onclick="goStep(6)">← Back</button>
-            <button class="btn-add-tv" onclick="addAnotherTv()">+ Add another TV</button>
-            <button class="btn-next" id="next7" onclick="goStep(8)">Continue</button>
+            <button class="btn-next" id="next7" onclick="showMoreTvStep()">Continue</button>
+          </div>
+        </div>
+
+        <!-- STEP 7B: ANOTHER TV? (gate — not part of the numbered 1–9 flow) -->
+        <div class="step" id="step-moretv">
+          <h3>Got another TV to mount?</h3>
+          <p class="hint">Same visit, same address — 15% off the cheaper one.</p>
+          <div id="tvSummaryMore" class="tv-summary"></div>
+          <div class="opt-grid">
+            <div class="opt-card" data-shape="radio" onclick="answerMoreTv(true)">
+              <span class="label">Yes, add another TV</span>
+              <div class="right"><div class="mark"></div></div>
+            </div>
+            <div class="opt-card" data-shape="radio" onclick="answerMoreTv(false)">
+              <span class="label">No, that's all</span>
+              <div class="right"><div class="mark"></div></div>
+            </div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="goStep(7)">← Back</button>
+            <span></span>
           </div>
         </div>
 
@@ -1210,10 +1230,35 @@
   const fill = document.getElementById('fill');
   const stepMeta = document.getElementById('stepMeta');
 
+  function showMoreTvStep(){
+    for(let i = 1; i <= TOTAL_STEPS; i++){
+      document.getElementById('step-'+i).classList.remove('active');
+    }
+    document.getElementById('step-moretv').classList.add('active');
+    document.getElementById('tvSummaryMore').innerHTML = document.getElementById('tvSummary7').innerHTML;
+    fill.style.width = (7.5 / TOTAL_STEPS * 100) + '%';
+    stepMeta.textContent = 'One more thing';
+
+    const shell = document.querySelector('.book-shell');
+    const rect = shell.getBoundingClientRect();
+    if(rect.top < 0 || rect.top > window.innerHeight * 0.5){
+      shell.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }
+
+  function answerMoreTv(yes){
+    if(yes){
+      addAnotherTv(); // saves current TV, resets fields, and jumps to goStep(2)
+    } else {
+      goStep(8);
+    }
+  }
+
   function goStep(n){
     for(let i = 1; i <= TOTAL_STEPS; i++){
       document.getElementById('step-'+i).classList.toggle('active', i === n);
     }
+    document.getElementById('step-moretv').classList.remove('active');
     fill.style.width = (n / TOTAL_STEPS * 100) + '%';
     stepMeta.textContent = `Step ${n} of ${TOTAL_STEPS} — ${STEP_TITLES[n]}`;
     if(n === 8) renderCalendar();
