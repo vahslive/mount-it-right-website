@@ -301,6 +301,17 @@
   .final-quote .amt{ font-family:var(--display); font-weight:800; font-size:52px; margin:12px 0 6px; }
   .final-quote .sub{ color:var(--ink-soft); font-size:13.5px; margin-bottom:8px; }
 
+  .quote-breakdown{ margin-top:6px; }
+  .qb-tv{ background:var(--mist); border-radius:14px; padding:16px 18px; margin-bottom:10px; }
+  .qb-tv-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .qb-tv-head .name{ font-family:var(--display); font-weight:700; font-size:14.5px; }
+  .qb-tv-head .disc{ font-size:11px; font-weight:700; color:var(--signal); background:var(--signal-soft); padding:2px 9px; border-radius:100px; }
+  .qb-line{ display:flex; justify-content:space-between; font-size:13px; color:var(--ink-soft); padding:3px 0; }
+  .qb-line .qb-price{ font-family:var(--mono); color:var(--ink); }
+  .qb-tv-total{ display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; padding-top:8px; margin-top:6px; border-top:1px solid var(--line); }
+  .qb-addons{ background:var(--mist); border-radius:14px; padding:16px 18px; margin-bottom:10px; }
+  .qb-addons .name{ font-family:var(--display); font-weight:700; font-size:14.5px; margin-bottom:8px; }
+
   /* ---------- scheduling calendar ---------- */
   .day-scroll{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:20px; -webkit-overflow-scrolling:touch; }
   .day-chip{
@@ -711,6 +722,8 @@
               <a href="privacy.html" target="_blank" style="color:var(--signal);">Privacy Policy</a>
             </span>
           </label>
+
+          <div id="quoteBreakdown" class="quote-breakdown"></div>
 
           <div class="final-quote">
             <span class="lbl">Your quote</span>
@@ -1275,13 +1288,65 @@
     }
   }
 
+  const OPTION_LABELS = {
+    dismount_yes: 'Old TV removal', dismount_no: null,
+    size_under50: 'Mount — up to 50″', size_51_65: 'Mount — 51–65″',
+    size_65_2tech: 'Mount — 65″+ (2 techs)', size_65_1tech: 'Mount — 65″+ (1 tech)',
+    bracket_have: null, bracket_fixed: 'Fixed bracket', bracket_tilt: 'Tilting bracket', bracket_full: 'Full-motion bracket',
+    wall_standard: null, wall_brick: 'Brick/concrete anchors', wall_stucco: 'Stucco anchors',
+    wires_exposed: null, wires_external: 'External cord sleeve', wires_inwall: 'In-wall cord concealment',
+    addon_soundbar: 'Soundbar installation', addon_fireplace: 'Above-fireplace mounting', addon_shelf: 'Wall shelf',
+  };
+
   function renderFinalQuote(){
     const total = currentTotal();
     document.getElementById('finalAmt').textContent = '$' + total;
+
+    const allTvs = [...tvs];
+    if(selections.size) allTvs.push({ ...selections });
+    const prices = allTvs.map(tvPrice);
+
+    // Match currentTotal()'s logic exactly: sort by price, the single
+    // highest-priced TV is full price, every other TV is discounted —
+    // even if two TVs happen to cost the same.
+    const order = prices.map((p, i) => i).sort((a, b) => prices[b] - prices[a]);
+    const isFullPriceIndex = order[0];
+
+    const tvBlocks = allTvs.map((tv, i) => {
+      const base = prices[i];
+      const isDiscounted = i !== isFullPriceIndex;
+      const shown = isDiscounted ? Math.round(base * 0.85) : base;
+
+      const lines = ['dismount','size','bracket','wall','wires']
+        .filter(key => tv[key] && OPTION_LABELS[tv[key]])
+        .map(key => {
+          const opt = STEP_DATA[key].options.find(o => o.id === tv[key]);
+          return `<div class="qb-line"><span>${OPTION_LABELS[tv[key]]}</span><span class="qb-price">$${opt ? opt.price : 0}</span></div>`;
+        }).join('');
+
+      return `
+        <div class="qb-tv">
+          <div class="qb-tv-head">
+            <span class="name">TV ${i + 1}</span>
+            ${isDiscounted ? '<span class="disc">15% off</span>' : ''}
+          </div>
+          ${lines}
+          <div class="qb-tv-total"><span>TV ${i + 1} total</span><span>$${shown}</span></div>
+        </div>`;
+    }).join('');
+
+    const addonLines = STEP_DATA.addons.options
+      .filter(o => selections.addons.has(o.id))
+      .map(o => `<div class="qb-line"><span>${OPTION_LABELS[o.id]}</span><span class="qb-price">$${o.price}</span></div>`)
+      .join('');
+    const addonsBlock = addonLines
+      ? `<div class="qb-addons"><div class="name">Add-ons</div>${addonLines}</div>`
+      : '';
+
+    document.getElementById('quoteBreakdown').innerHTML = tvBlocks + addonsBlock;
+
     const parts = [];
-    if(selections.size) parts.push('TV mount');
-    if(selections.dismount === 'dismount_yes') parts.push('old TV removal');
-    STEP_DATA.addons.options.forEach(o => { if(selections.addons.has(o.id)) parts.push(o.id.replace('addon_','').replace('_',' ')); });
+    if(allTvs.length > 1) parts.push(`${allTvs.length} TVs`);
     if(selectedSlot) parts.push(`${selectedSlot.dayLabel}, ${selectedSlot.time}`);
     document.getElementById('finalSub').textContent = parts.join(' · ');
   }
