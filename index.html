@@ -3,10 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mount It Right — TV Mounting in Phoenix, AZ</title>
+<title>TV Mounting Phoenix AZ | Mount It Right — Same-Week Install</title>
+<meta name="description" content="Professional TV wall mounting in Phoenix, Scottsdale, Tempe, Mesa, Chandler &amp; Gilbert. Flat-rate pricing, licensed &amp; insured techs, 3-year guarantee. Book online in 2 minutes.">
+<link rel="canonical" href="https://mountitright.com/">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mountitright.com/">
+<meta property="og:title" content="TV Mounting Phoenix AZ | Mount It Right">
+<meta property="og:description" content="Professional TV wall mounting across the Phoenix Valley. Flat-rate pricing, licensed &amp; insured, 3-year guarantee. Book online in 2 minutes.">
+<meta property="og:image" content="https://images.pexels.com/photos/6020432/pexels-photo-6020432.jpeg?auto=compress&cs=tinysrgb&w=1200">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TV Mounting Phoenix AZ | Mount It Right">
+<meta name="twitter:description" content="Professional TV wall mounting across the Phoenix Valley. Flat-rate pricing, licensed &amp; insured, 3-year guarantee.">
+<meta name="twitter:image" content="https://images.pexels.com/photos/6020432/pexels-photo-6020432.jpeg?auto=compress&cs=tinysrgb&w=1200">
+
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='none' stroke='%230A0A0C' stroke-width='1.4'/%3E%3Ccircle cx='20' cy='20' r='5' fill='%232F5EFF'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Fraunces:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": "https://mountitright.com/#business",
+  "name": "Mount It Right",
+  "image": "https://images.pexels.com/photos/6020432/pexels-photo-6020432.jpeg",
+  "url": "https://mountitright.com/",
+  "telephone": "+1-602-555-0110",
+  "priceRange": "$89-$249",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Phoenix",
+    "addressRegion": "AZ",
+    "addressCountry": "US"
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Phoenix" },
+    { "@type": "City", "name": "Scottsdale" },
+    { "@type": "City", "name": "Tempe" },
+    { "@type": "City", "name": "Chandler" },
+    { "@type": "City", "name": "Gilbert" },
+    { "@type": "City", "name": "Mesa" },
+    { "@type": "City", "name": "Glendale" },
+    { "@type": "City", "name": "Peoria" }
+  ],
+  "description": "Professional TV wall mounting service in the Phoenix, Arizona metro area. Flat-rate pricing, licensed and insured technicians, 3-year installation guarantee.",
+  "makesOffer": {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "name": "TV Wall Mounting Installation"
+    }
+  }
+}
+</script>
 <style>
   :root{
     --paper:#FFFFFF;
@@ -1486,11 +1540,10 @@
 
   function validateContact(){
     const digits = phoneInput.value.replace(/\D/g,'');
-    next9.disabled = !(nameInput.value.trim().length > 1 && digits.length >= 10 && smsConsent.checked);
+    next9.disabled = !(nameInput.value.trim().length > 1 && digits.length >= 10);
   }
   nameInput.addEventListener('input', validateContact);
   phoneInput.addEventListener('input', validateContact);
-  smsConsent.addEventListener('change', validateContact);
 
   const SIZE_LABELS = { size_under50:'Up to 50″', size_51_65:'51–65″', size_65_2tech:'65″+ (2 tech)', size_65_1tech:'65″+ (1 tech)' };
 
@@ -1544,6 +1597,7 @@
       phone: phoneInput.value,
       notes: tvNotes,
       tvs: allTvs,
+      smsConsent: smsConsent.checked,
     };
 
     fetch(API_BASE + '/api/bookings', {
