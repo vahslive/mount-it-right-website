@@ -918,6 +918,105 @@
   // ever moves.
   const API_BASE = 'https://sketrix.com';
 
+  // ==========================================================================
+  // TRACKING — Meta Pixel, and where the visitor came from
+  //
+  // The same block runs on book.html, the paid-traffic landing page. Both
+  // report to one pixel on purpose: Facebook credits an event to a campaign
+  // only when the visitor arrived by clicking an ad, so organic events from
+  // this page cannot be mistaken for ad results. What the homepage adds is
+  // everything else — a retargeting audience of people who looked and left,
+  // and a count of how many bookings the site takes in total.
+  //
+  // PAGE is what separates the two in our own reporting: it rides along on
+  // every event and every booking, so "how did the landing page do against
+  // the homepage" is answerable without guessing.
+  // ==========================================================================
+  const PAGE = 'home';
+  const META_PIXEL_ID = '2228250118015941';
+
+  const ATTR = (function(){
+    const params = new URLSearchParams(location.search);
+    let stored = {};
+    try { stored = JSON.parse(sessionStorage.getItem('mir_attr') || '{}'); } catch {}
+
+    const fields = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid'];
+    const fresh = {};
+    let sawAny = false;
+    for(const f of fields){
+      const v = params.get(f);
+      if(v){ fresh[f] = v; sawAny = true; }
+    }
+
+    // Fresh tags win; with none, whatever was captured on arrival survives, so
+    // wandering from the landing page to the homepage doesn't erase the ad.
+    const attr = sawAny ? fresh : stored;
+    attr.landing = attr.landing || (location.pathname + location.search);
+    attr.referrer = attr.referrer || document.referrer || null;
+    attr.firstSeen = attr.firstSeen || new Date().toISOString();
+    attr.page = PAGE;
+    attr.userAgent = navigator.userAgent;
+    try { sessionStorage.setItem('mir_attr', JSON.stringify(attr)); } catch {}
+    return attr;
+  })();
+
+  function trafficSource(){
+    if(ATTR.utm_source) return ATTR.utm_source;
+    if(ATTR.fbclid) return 'facebook';
+    if(ATTR.gclid) return 'google';
+    if(ATTR.referrer){
+      try { return new URL(ATTR.referrer).hostname.replace(/^www\./, ''); } catch { return 'referral'; }
+    }
+    return 'direct';
+  }
+
+  function readCookie(name){
+    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[2]) : null;
+  }
+
+  const PIXEL_LIVE = /^\d{10,20}$/.test(META_PIXEL_ID);
+  if(PIXEL_LIVE){
+    /* eslint-disable */
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    /* eslint-enable */
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  } else {
+    console.log('[mir-track] PageView (pixel not configured)');
+  }
+
+  const STANDARD_EVENTS = ['ViewContent','InitiateCheckout','Schedule','Lead','Purchase'];
+  const firedEvents = new Set();
+
+  function newEventId(){
+    return 'mir_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+  }
+
+  function track(name, params, eventId){
+    // One of each per page load, except the booking itself. Someone stepping
+    // back and forth through the form is one visit, not five.
+    if(name !== 'Schedule'){
+      if(firedEvents.has(name)) return;
+      firedEvents.add(name);
+    }
+    if(!PIXEL_LIVE){
+      console.log('[mir-track]', name, params || {}, eventId || '');
+      return;
+    }
+    // The options argument is omitted rather than passed as undefined: fbq
+    // counts its arguments, and a fourth one that happens to be undefined is
+    // not the same to it as no fourth one at all.
+    const method = STANDARD_EVENTS.includes(name) ? 'track' : 'trackCustom';
+    const args = [method, name, params || {}];
+    if(eventId) args.push({ eventID: eventId });
+    fbq.apply(null, args);
+  }
+
   // ---------------- DRAGGABLE LEVEL DOT (spring physics) ----------------
   (function(){
     const track = document.getElementById('levelTrack');
@@ -1298,6 +1397,13 @@
     if(n === 8) renderCalendar();
     if(n === 9) renderFinalQuote();
 
+    // Funnel events. Step 2 means they started configuring rather than just
+    // typing an address; step 8 is the calendar, which is the closest thing
+    // this form has to a checkout; step 9 is contact details.
+    if(n === 2) track('ViewContent', { content_name: PAGE, content_category: 'booking_form' });
+    if(n === 8) track('InitiateCheckout', { value: currentTotal(), currency: 'USD', num_items: tvs.length + (selections.size ? 1 : 0) });
+    if(n === 9) track('ContactStep', { value: currentTotal(), currency: 'USD' });
+
     // Only reposition the page if the form has actually scrolled out of view —
     // once the user is settled on the booking card, stepping through
     // questions shouldn't keep yanking the page back to the top.
@@ -1546,6 +1652,11 @@
         ).join('; ') + '.'
       : null;
 
+    // Generated here and sent both to the pixel and to our backend, so that
+    // the browser event and the server-side copy of it are recognised by
+    // Facebook as one booking rather than two.
+    const scheduleEventId = newEventId();
+
     const payload = {
       address: selectedAddress ? selectedAddress.line : null,
       lat: selectedAddress ? selectedAddress.lat : null,
@@ -1565,7 +1676,21 @@
       notes: tvNotes,
       tvs: allTvs,
       smsConsent: smsConsent.checked,
+
+      // Where this person came from, and what Facebook needs to match the
+      // server's copy of this event to the browser's.
+      source: trafficSource(),
+      attribution: ATTR,
+      meta: {
+        pixelId: PIXEL_LIVE ? META_PIXEL_ID : null,
+        eventId: scheduleEventId,
+        eventName: 'Schedule',
+        fbp: readCookie('_fbp'),
+        fbc: readCookie('_fbc') || (ATTR.fbclid ? `fb.1.${Date.now()}.${ATTR.fbclid}` : null),
+      },
     };
+
+    track('Schedule', { value: payload.total, currency: 'USD', num_items: allTvs.length }, scheduleEventId);
 
     fetch(API_BASE + '/api/bookings', {
       method: 'POST',
