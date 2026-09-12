@@ -208,9 +208,26 @@
   }
   .field input:focus{ border-color:var(--ink); background:var(--paper); }
   .field input::placeholder{ color:var(--ink-soft); opacity:.75; }
+  /* Google's autocomplete is a custom element that builds its own input in a
+     shadow root. Styling the host alone leaves that input unpadded and
+     unstyled — which looks like a broken empty strip. The --gmp-mat-* tokens
+     and ::part(input) are the supported ways in. */
   gmp-place-autocomplete{
-    width:100%; display:block; border-radius:14px; overflow:hidden;
-    background:var(--mist); border:1.5px solid transparent;
+    display:block; width:100%;
+    --gmp-mat-color-surface: var(--mist);
+    --gmp-mat-color-on-surface: var(--ink);
+    --gmp-mat-color-outline: transparent;
+    --gmp-mat-color-primary: var(--ink);
+    font-family:var(--body); font-size:16px;
+    background-color:var(--mist);
+    border:1.5px solid transparent;
+    border-radius:14px;
+    color-scheme:light;
+    transition:border-color .18s var(--ease), background-color .18s var(--ease);
+  }
+  gmp-place-autocomplete:focus-within{ border-color:var(--ink); background-color:var(--paper); }
+  gmp-place-autocomplete::part(input){
+    padding:16px 17px !important; font-size:16px !important; font-family:var(--body) !important;
   }
   .hint{ font-size:12.5px; color:var(--ink-soft); margin-top:10px; }
 
@@ -404,7 +421,7 @@
         <h1>Where are we going?</h1>
         <p class="lede">So we can confirm you're inside our service area.</p>
         <div class="field">
-          <gmp-place-autocomplete id="addrInput"></gmp-place-autocomplete>
+          <gmp-place-autocomplete id="addrInput" placeholder="e.g. 4021 E Camelback Rd"></gmp-place-autocomplete>
           <input type="text" id="addrFallback" placeholder="Street address, city" style="display:none;">
         </div>
         <div class="flag" id="addrFlag"><span id="addrFlagText"></span></div>
@@ -776,6 +793,11 @@ function go(id, isBack){
     track('InitiateCheckout', { value: currentTotal(), currency: 'USD', num_items: tvCount() });
   }
   if(id === 'sc-name') track('ContactStep', { value: currentTotal(), currency: 'USD' });
+
+  // The address field starts life inside a hidden screen. Re-applying its
+  // settings the moment it becomes visible costs nothing and removes any
+  // question of whether it was set up correctly while it had no size.
+  if(id === 'sc-address' && mapsReady) initAutocomplete();
   if(id === 'sc-review') renderReview();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -859,11 +881,27 @@ function setAddressFlag(text, ok){
   flag.classList.add('show');
 }
 
+let mapsReady = false;
+let fallbackTimer = null;
+
 function initAutocomplete(){
   const el = document.getElementById('addrInput');
   if(!el) return;
+
+  mapsReady = true;
+  clearTimeout(fallbackTimer);
+
+  // Maps can arrive after the fallback has already swapped in the plain box.
+  // When it does, the good field comes back rather than the visitor being
+  // stuck with the worse one for the rest of the session.
+  const plain = document.getElementById('addrFallback');
+  if(plain){ plain.style.display = 'none'; }
+  el.style.display = '';
+
   el.includedRegionCodes = ['us'];
   el.locationBias = { radius: 48000, center: { lat: PHX.lat, lng: PHX.lng } };
+  if(el.dataset.wired === '1') return;
+  el.dataset.wired = '1';
 
   el.addEventListener('gmp-select', async ({ placePrediction }) => {
     const place = placePrediction.toPlace();
@@ -895,11 +933,12 @@ window.initAutocomplete = initAutocomplete;
 // Blockers and flaky networks stop Google Maps from loading often enough to
 // plan for it. A dead address field on a page we paid for is a lost booking,
 // so after a few seconds fall back to a plain text box.
-setTimeout(() => {
-  if(window.google && window.google.maps) return;
+fallbackTimer = setTimeout(() => {
+  if(mapsReady) return;
+
   const auto = document.getElementById('addrInput');
   const plain = document.getElementById('addrFallback');
-  if(!plain || plain.style.display !== 'none') return;
+  if(!plain) return;
 
   if(auto) auto.style.display = 'none';
   plain.style.display = 'block';
@@ -908,7 +947,10 @@ setTimeout(() => {
     selectedAddress = value.length > 8 ? { line: value, lat:null, lng:null, inArea:null } : null;
     document.getElementById('addrNext').disabled = !selectedAddress;
   });
-}, 4000);
+  // Not silent: an address typed free-hand has no coordinates, so the job
+  // reaches the admin without a map pin and someone should know why.
+  console.warn('Google Maps did not load — address falling back to plain text.');
+}, 8000);
 
 // ---------------------------------------------------------------------------
 // Calendar
