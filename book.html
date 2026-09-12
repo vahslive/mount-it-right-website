@@ -1184,10 +1184,13 @@ function track(name, params, eventId){
     fired.add(name);
   }
 
-  if(!PIXEL_LIVE){
-    console.log('[mir-track]', name, params || {}, eventId || '');
-    return;
-  }
+  // Logged whether or not the pixel is live. Facebook's Test Events panel is
+  // the only other window into this, it lags, and it quietly folds some
+  // events in with its own automatically-logged ones — so when something
+  // seems not to have fired, the console settles it immediately.
+  console.log('[mir-track]', name, params || {}, eventId || '');
+
+  if(!PIXEL_LIVE) return;
   // The options argument is left off entirely rather than passed as undefined:
   // fbq inspects how many arguments it received, and a fourth one that happens
   // to be undefined is not the same to it as no fourth one.
