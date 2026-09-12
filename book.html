@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Book a TV Installation — Mount It Right</title>
+
+<!-- Paid-traffic landing page. Deliberately kept out of search results: it
+     duplicates the homepage's offer, and two indexed pages competing for the
+     same words helps neither. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="See your exact TV mounting price in about a minute. Phoenix and the Valley. Licensed, insured, one-year warranty.">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230A0A0C'/%3E%3Crect x='9' y='24' width='5' height='9' rx='2.5' fill='%232F5EFF' opacity='0.55'/%3E%3Crect x='17.5' y='17' width='5' height='16' rx='2.5' fill='%232F5EFF' opacity='0.78'/%3E%3Crect x='26' y='8' width='5' height='25' rx='2.5' fill='%232F5EFF'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#FFFFFF;
+    --mist:#F5F5F6;
+    --ink:#0A0A0C;
+    --ink-soft:#6B6B70;
+    --line:rgba(10,10,12,0.09);
+    --line-strong:rgba(10,10,12,0.16);
+    --signal:#2F5EFF;
+    --signal-soft:rgba(47,94,255,0.07);
+    --level:#2FB37C;
+    --level-soft:rgba(47,179,124,0.09);
+    --display:'Inter Tight',-apple-system,BlinkMacSystemFont,sans-serif;
+    --body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --shadow:0 1px 2px rgba(10,10,12,0.04), 0 12px 32px -8px rgba(10,10,12,0.10);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    background:var(--mist); color:var(--ink); font-family:var(--body);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    min-height:100dvh; display:flex; flex-direction:column;
+  }
+  button{ font-family:inherit; cursor:pointer; }
+  input{ font-family:inherit; }
+
+  /* ------------------------------------------------------------------ *
+   * Header — logo and a phone number, and nothing else. Paid traffic has
+   * exactly two useful exits from this page: fill the form, or call. Any
+   * third link is a way to leave without doing either.
+   * ------------------------------------------------------------------ */
+  .top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 22px; max-width:720px; width:100%; margin:0 auto;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--display); font-weight:800; font-size:16.5px; letter-spacing:-0.01em; }
+  .brand svg{ width:30px; height:30px; flex:none; }
+  .call{
+    display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+    color:var(--ink); font-size:13.5px; font-weight:600;
+    border:1px solid var(--line-strong); border-radius:100px; padding:8px 15px;
+    background:var(--paper); transition:border-color .2s var(--ease);
+  }
+  .call:hover{ border-color:var(--ink); }
+  .call svg{ width:14px; height:14px; }
+  @media (max-width:420px){ .call span{ display:none; } .call{ padding:9px 11px; } }
+
+  /* ---------- the card ---------- */
+  .stage{ flex:1; width:100%; max-width:720px; margin:0 auto; padding:0 22px 40px; }
+
+  .card{
+    background:var(--paper); border-radius:22px; border:1px solid var(--line);
+    box-shadow:var(--shadow); overflow:hidden; position:relative;
+  }
+
+  .rail{ height:3px; background:var(--mist); }
+  .rail-fill{ height:100%; width:0%; background:var(--ink); transition:width .5s var(--ease); }
+
+  .card-body{ padding:30px 30px 28px; position:relative; }
+  @media (max-width:560px){ .card-body{ padding:24px 20px 22px; } }
+
+  /* ---------- running price ---------- */
+  .pricebar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:0 30px; height:0; overflow:hidden; opacity:0;
+    border-bottom:1px solid transparent;
+    transition:height .4s var(--ease), opacity .3s var(--ease), padding .4s var(--ease);
+  }
+  .pricebar.show{ height:54px; opacity:1; border-bottom-color:var(--line); }
+  @media (max-width:560px){ .pricebar{ padding:0 20px; } }
+  .pricebar-label{ font-size:12px; color:var(--ink-soft); font-weight:500; }
+  .pricebar-amt{
+    font-family:var(--display); font-size:21px; font-weight:800;
+    font-variant-numeric:tabular-nums; letter-spacing:-0.02em;
+  }
+  .pricebar-amt.bump{ animation:bump .42s var(--ease); }
+  @keyframes bump{
+    0%{ transform:scale(1); }
+    35%{ transform:scale(1.13); color:var(--signal); }
+    100%{ transform:scale(1); }
+  }
+
+  /* ---------- screens ---------- */
+  .screen{ display:none; }
+  .screen.active{ display:block; animation:enter .34s var(--ease) both; }
+  @keyframes enter{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:none; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .screen.active{ animation:none; }
+    .pricebar-amt.bump{ animation:none; }
+  }
+
+  .eyebrow{
+    font-size:11px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:10px;
+  }
+  h1{ font-family:var(--display); font-size:27px; line-height:1.2; letter-spacing:-0.022em; font-weight:800; }
+  @media (max-width:560px){ h1{ font-size:23px; } }
+  .lede{ color:var(--ink-soft); font-size:14.5px; margin-top:9px; }
+
+  /* ---------- option rows ---------- */
+  .opts{ margin-top:22px; display:flex; flex-direction:column; gap:9px; }
+  .opt{
+    display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+    background:var(--paper); border:1.5px solid var(--line); border-radius:14px;
+    padding:15px 17px; transition:border-color .18s var(--ease), background .18s var(--ease), transform .12s var(--ease);
+  }
+  .opt:hover{ border-color:var(--line-strong); }
+  .opt:active{ transform:scale(0.99); }
+  .opt.picked{ border-color:var(--ink); background:var(--mist); }
+  .opt-main{ flex:1; min-width:0; }
+  /* Spans by default flow inline, which runs the title and its explanation
+     together into one sentence. These are two lines. */
+  .opt-title{ display:block; font-size:15px; font-weight:600; letter-spacing:-0.01em; }
+  .opt-note{ display:block; font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.45; }
+  .opt-price{ font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .opt-price.free{ color:var(--level); font-weight:600; font-size:13px; }
+  .tick{
+    width:21px; height:21px; flex:none; border-radius:50%; border:1.5px solid var(--line-strong);
+    display:grid; place-items:center; transition:all .18s var(--ease);
+  }
+  .opt.picked .tick{ background:var(--ink); border-color:var(--ink); }
+  .tick svg{ width:11px; height:11px; stroke:var(--paper); opacity:0; transition:opacity .18s var(--ease); }
+  .opt.picked .tick svg{ opacity:1; }
+  /* Add-ons are a multi-choice, so their marker is square — a shape people
+     already read as "pick as many as you like". */
+  .opt.multi .tick{ border-radius:7px; }
+
+  /* ---------- buttons ---------- */
+  .actions{ display:flex; align-items:center; gap:12px; margin-top:24px; }
+  .btn{
+    background:var(--ink); color:var(--paper); border:none; border-radius:100px;
+    padding:15px 30px; font-size:15px; font-weight:700; letter-spacing:-0.01em;
+    transition:transform .12s var(--ease), opacity .2s var(--ease);
+  }
+  .btn:hover:not(:disabled){ transform:translateY(-1px); }
+  .btn:disabled{ opacity:0.32; cursor:not-allowed; }
+  .btn.wide{ width:100%; }
+  .btn.big{ padding:17px 30px; font-size:16px; }
+  .btn-ghost{
+    background:none; border:none; color:var(--ink-soft); font-size:13.5px; font-weight:600;
+    padding:10px 4px; transition:color .18s var(--ease);
+  }
+  .btn-ghost:hover{ color:var(--ink); }
+  .btn-line{
+    background:var(--paper); color:var(--ink); border:1.5px solid var(--line-strong);
+    border-radius:100px; padding:14px 24px; font-size:14.5px; font-weight:600;
+    transition:border-color .18s var(--ease);
+  }
+  .btn-line:hover{ border-color:var(--ink); }
+  .back{
+    position:absolute; top:-6px; right:0;
+    background:none; border:none; color:var(--ink-soft); font-size:13px; font-weight:600; padding:6px;
+  }
+  .back:hover{ color:var(--ink); }
+
+  /* ---------- the price reveal ---------- */
+  .reveal{ text-align:center; padding:14px 0 6px; }
+  .reveal-num{
+    font-family:var(--display); font-weight:800; font-size:68px; line-height:1;
+    letter-spacing:-0.04em; font-variant-numeric:tabular-nums;
+  }
+  @media (max-width:560px){ .reveal-num{ font-size:56px; } }
+  .reveal-sub{ color:var(--ink-soft); font-size:14px; margin-top:12px; }
+  .reveal-pills{ display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:18px; }
+  .pill{
+    font-size:12px; font-weight:600; color:var(--ink-soft);
+    background:var(--mist); border-radius:100px; padding:6px 13px;
+  }
+  .pill.good{ background:var(--level-soft); color:var(--level); }
+  .lines{ margin-top:22px; border-top:1px solid var(--line); padding-top:16px; text-align:left; }
+  .line{ display:flex; justify-content:space-between; gap:14px; font-size:13.5px; padding:5px 0; }
+  .line span:first-child{ color:var(--ink-soft); }
+  .line span:last-child{ font-weight:600; font-variant-numeric:tabular-nums; }
+  .line.sum{ border-top:1px solid var(--line); margin-top:8px; padding-top:12px; font-size:15px; }
+  .line.sum span:first-child{ color:var(--ink); font-weight:700; }
+  .line.sum span:last-child{ font-weight:800; }
+
+  /* ---------- fields ---------- */
+  .field{ margin-top:22px; }
+  .field input[type="text"], .field input[type="tel"]{
+    width:100%; background:var(--mist); border:1.5px solid transparent; border-radius:14px;
+    padding:16px 17px; font-size:16px; color:var(--ink); outline:none;
+    transition:border-color .18s var(--ease), background .18s var(--ease);
+  }
+  .field input:focus{ border-color:var(--ink); background:var(--paper); }
+  .field input::placeholder{ color:var(--ink-soft); opacity:.75; }
+  gmp-place-autocomplete{
+    width:100%; display:block; border-radius:14px; overflow:hidden;
+    background:var(--mist); border:1.5px solid transparent;
+  }
+  .hint{ font-size:12.5px; color:var(--ink-soft); margin-top:10px; }
+
+  .flag{
+    display:flex; align-items:flex-start; gap:9px; margin-top:14px; padding:12px 14px;
+    border-radius:12px; font-size:13px; line-height:1.5;
+    border:1px solid var(--line); background:var(--mist);
+    opacity:0; height:0; overflow:hidden; padding-top:0; padding-bottom:0; border-width:0;
+    transition:opacity .25s var(--ease);
+  }
+  .flag.show{ opacity:1; height:auto; padding:12px 14px; border-width:1px; }
+  .flag.ok{ background:var(--level-soft); border-color:rgba(47,179,124,0.3); }
+
+  .consent{ display:flex; align-items:flex-start; gap:11px; margin-top:18px; cursor:pointer; }
+  .consent input{ width:19px; height:19px; margin-top:2px; accent-color:var(--ink); flex:none; }
+  .consent span{ font-size:12.5px; color:var(--ink-soft); line-height:1.55; }
+
+  /* ---------- calendar ---------- */
+  .cal{ margin-top:20px; }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .cal-month{ font-family:var(--display); font-weight:700; font-size:15px; }
+  .cal-nav{ display:flex; gap:6px; }
+  .cal-nav button{
+    width:32px; height:32px; border-radius:9px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink); font-size:14px; line-height:1;
+  }
+  .cal-nav button:disabled{ opacity:.3; cursor:not-allowed; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .cal-dow{ font-size:10.5px; font-weight:700; color:var(--ink-soft); text-align:center; padding-bottom:5px; letter-spacing:0.04em; }
+  .cal-day{
+    aspect-ratio:1; border:1px solid var(--line); border-radius:10px; background:var(--paper);
+    font-size:13.5px; font-weight:600; color:var(--ink);
+    display:grid; place-items:center; transition:all .15s var(--ease);
+  }
+  .cal-day:disabled{ color:rgba(10,10,12,0.22); border-color:transparent; cursor:not-allowed; }
+  .cal-day.empty{ border:none; background:none; cursor:default; }
+  .cal-day.picked{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .slots{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+  .slot{
+    border:1.5px solid var(--line); border-radius:100px; background:var(--paper);
+    padding:10px 17px; font-size:13.5px; font-weight:600; color:var(--ink);
+    transition:all .15s var(--ease);
+  }
+  .slot:hover:not(:disabled){ border-color:var(--line-strong); }
+  .slot:disabled{ opacity:.32; text-decoration:line-through; cursor:not-allowed; }
+  .slot.picked{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+  /* ---------- done ---------- */
+  .done{ text-align:center; padding:16px 0 8px; }
+  .done-mark{
+    width:62px; height:62px; border-radius:50%; background:var(--level-soft);
+    display:grid; place-items:center; margin:0 auto 20px;
+    animation:pop .5s var(--ease) both;
+  }
+  .done-mark svg{ width:28px; height:28px; stroke:var(--level); }
+  @keyframes pop{ from{ transform:scale(.6); opacity:0; } to{ transform:none; opacity:1; } }
+
+  /* ---------- trust strip ---------- */
+  .trust{
+    max-width:720px; margin:22px auto 0; padding:0 22px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  }
+  @media (max-width:640px){ .trust{ grid-template-columns:repeat(2,1fr); } }
+  .trust-item{
+    background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    padding:14px 15px; text-align:left;
+  }
+  .trust-item b{ display:block; font-family:var(--display); font-size:14px; font-weight:700; }
+  .trust-item span{ display:block; font-size:11.5px; color:var(--ink-soft); margin-top:3px; line-height:1.45; }
+
+  .legal{
+    max-width:720px; margin:0 auto; padding:22px; text-align:center;
+    font-size:11.5px; color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <rect width="40" height="40" rx="10" fill="#0A0A0C"/>
+      <rect x="9" y="24" width="5" height="9" rx="2.5" fill="#2F5EFF" opacity="0.55"/>
+      <rect x="17.5" y="17" width="5" height="16" rx="2.5" fill="#2F5EFF" opacity="0.78"/>
+      <rect x="26" y="8" width="5" height="25" rx="2.5" fill="#2F5EFF"/>
+    </svg>
+    Mount It Right
+  </div>
+  <a class="call" href="tel:+16237920747">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+    <span>(623) 792-0747</span>
+  </a>
+</header>
+
+<main class="stage">
+  <div class="card">
+    <div class="rail"><div class="rail-fill" id="rail"></div></div>
+
+    <div class="pricebar" id="pricebar">
+      <span class="pricebar-label" id="pricebarLabel">Your price so far</span>
+      <span class="pricebar-amt" id="pricebarAmt">$0</span>
+    </div>
+
+    <div class="card-body">
+
+      <!-- 1 · SIZE -->
+      <section class="screen active" id="sc-size">
+        <div class="eyebrow">Step 1 of 5</div>
+        <h1>How big is the TV?</h1>
+        <p class="lede">Five quick questions and you'll see your exact price. No calls, no estimates.</p>
+        <div class="opts" id="optsSize"></div>
+      </section>
+
+      <!-- 2 · BRACKET -->
+      <section class="screen" id="sc-bracket">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Step 2 of 5</div>
+        <h1>Do you have a mount?</h1>
+        <p class="lede">If not, we bring one and it's included in the price below.</p>
+        <div class="opts" id="optsBracket"></div>
+      </section>
+
+      <!-- 3 · WALL -->
+      <section class="screen" id="sc-wall">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Step 3 of 5</div>
+        <h1>What's the wall made of?</h1>
+        <p class="lede">Brick, concrete and stucco need different anchors and more time.</p>
+        <div class="opts" id="optsWall"></div>
+      </section>
+
+      <!-- 4 · WIRES -->
+      <section class="screen" id="sc-wires">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Step 4 of 5</div>
+        <h1>What about the cables?</h1>
+        <p class="lede">Most people regret leaving them showing. Your call.</p>
+        <div class="opts" id="optsWires"></div>
+      </section>
+
+      <!-- 5 · DISMOUNT -->
+      <section class="screen" id="sc-dismount">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Step 5 of 5</div>
+        <h1>Is there an old TV to take down?</h1>
+        <p class="lede">We'll remove it and set it wherever you want it.</p>
+        <div class="opts" id="optsDismount"></div>
+      </section>
+
+      <!-- PRICE REVEAL -->
+      <section class="screen" id="sc-price">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="reveal">
+          <div class="eyebrow">Your price</div>
+          <div class="reveal-num" id="revealNum">$0</div>
+          <div class="reveal-sub">Everything included. No trip fee, no surprise line items at the door.</div>
+          <div class="reveal-pills">
+            <span class="pill good">1-year warranty</span>
+            <span class="pill">Licensed &amp; insured</span>
+            <span class="pill">Pay after the work</span>
+          </div>
+        </div>
+
+        <div class="lines" id="revealLines"></div>
+
+        <div style="margin-top:26px;">
+          <button class="btn big wide" onclick="go('sc-extras')">Looks good — let's book it</button>
+        </div>
+        <div class="actions" style="justify-content:space-between; margin-top:12px;">
+          <button class="btn-ghost" onclick="addAnotherTv()">+ Another TV (15% off)</button>
+          <button class="btn-ghost" onclick="goBack()">Change something</button>
+        </div>
+      </section>
+
+      <!-- EXTRAS -->
+      <section class="screen" id="sc-extras">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">While we're there</div>
+        <h1>Anything else?</h1>
+        <p class="lede">Optional. Cheaper now than booking a second visit later.</p>
+        <div class="opts" id="optsAddons"></div>
+        <div class="actions">
+          <button class="btn wide" onclick="go('sc-address')" id="extrasNext">Continue</button>
+        </div>
+      </section>
+
+      <!-- ADDRESS -->
+      <section class="screen" id="sc-address">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Almost there</div>
+        <h1>Where are we going?</h1>
+        <p class="lede">So we can confirm you're inside our service area.</p>
+        <div class="field">
+          <gmp-place-autocomplete id="addrInput"></gmp-place-autocomplete>
+          <input type="text" id="addrFallback" placeholder="Street address, city" style="display:none;">
+        </div>
+        <div class="flag" id="addrFlag"><span id="addrFlagText"></span></div>
+        <div class="actions">
+          <button class="btn wide" id="addrNext" disabled onclick="go('sc-when')">Continue</button>
+        </div>
+      </section>
+
+      <!-- WHEN -->
+      <section class="screen" id="sc-when">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Pick a time</div>
+        <h1>When suits you?</h1>
+        <p class="lede">Crossed-out times are already taken.</p>
+        <div class="cal">
+          <div class="cal-head">
+            <div class="cal-month" id="calMonth"></div>
+            <div class="cal-nav">
+              <button id="calPrev" onclick="shiftMonth(-1)">‹</button>
+              <button id="calNext" onclick="shiftMonth(1)">›</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="slots" id="slots"></div>
+        </div>
+        <div class="actions">
+          <button class="btn wide" id="whenNext" disabled onclick="go('sc-name')">Continue</button>
+        </div>
+      </section>
+
+      <!-- NAME -->
+      <section class="screen" id="sc-name">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Last two questions</div>
+        <h1>What's your name?</h1>
+        <div class="field">
+          <input type="text" id="nameInput" placeholder="First and last name" autocomplete="name">
+        </div>
+        <div class="actions">
+          <button class="btn wide" id="nameNext" disabled onclick="go('sc-phone')">Continue</button>
+        </div>
+      </section>
+
+      <!-- PHONE -->
+      <section class="screen" id="sc-phone">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">Last one</div>
+        <h1>Best number to reach you?</h1>
+        <p class="lede">Your installer texts when they're on the way. That's it.</p>
+        <div class="field">
+          <input type="tel" id="phoneInput" placeholder="(602) 555-1234" autocomplete="tel" inputmode="tel">
+        </div>
+        <label class="consent">
+          <input type="checkbox" id="smsConsent" checked>
+          <span>Text me about this booking — arrival window, receipt, nothing else. Reply STOP any time.</span>
+        </label>
+        <div class="actions">
+          <button class="btn wide" id="phoneNext" disabled onclick="go('sc-review')">Review booking</button>
+        </div>
+      </section>
+
+      <!-- REVIEW -->
+      <section class="screen" id="sc-review">
+        <button class="back" onclick="goBack()">← Back</button>
+        <div class="eyebrow">One last look</div>
+        <h1>Ready to confirm?</h1>
+        <div class="lines" id="reviewLines" style="border-top:none; padding-top:10px;"></div>
+        <div class="actions">
+          <button class="btn big wide" id="confirmBtn" onclick="confirmBooking()">Confirm booking</button>
+        </div>
+        <p class="hint">No payment now. You pay the installer after the work is done — card, tap to pay, or cash.</p>
+      </section>
+
+      <!-- DONE -->
+      <section class="screen" id="sc-done">
+        <div class="done">
+          <div class="done-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h1>You're booked.</h1>
+          <p class="lede" id="doneText"></p>
+          <div class="reveal-pills" style="margin-top:20px;">
+            <span class="pill" id="donePrice"></span>
+            <span class="pill good">Confirmation by text</span>
+          </div>
+          <div style="margin-top:26px;">
+            <a class="btn-line" href="tel:+16237920747" style="text-decoration:none; display:inline-block;">Call us: (623) 792-0747</a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="trust">
+    <div class="trust-item"><b>Exact price</b><span>Quoted online, not at your door</span></div>
+    <div class="trust-item"><b>Licensed &amp; insured</b><span>Mount It Right LLC, Arizona</span></div>
+    <div class="trust-item"><b>1-year warranty</b><span>On every mount we install</span></div>
+    <div class="trust-item"><b>Same week</b><span>Phoenix, Mesa, Scottsdale, Valley-wide</span></div>
+  </div>
+
+  <div class="legal">
+    © 2026 Mount It Right LLC · Phoenix, AZ · info@mountitright.com
+  </div>
+</main>
+
+<script>
+// ============================================================================
+// Paid-traffic booking funnel.
+//
+// Different from the homepage form on purpose. Someone arriving from search
+// already wants a TV mounted; someone arriving from a Facebook ad was looking
+// at something else a second ago. So this asks the cheapest question first
+// (how big is your TV), shows money early, and only asks for an address after
+// the person has seen a number and said yes to it.
+//
+// Prices are NOT written in this file. They come from /api/prices, which the
+// admin panel edits — the same list the master's app and the admin use. The
+// constants below are a fallback for the minute when that call fails, so the
+// page still works rather than showing an empty form.
+// ============================================================================
+
+const API_BASE = 'https://sketrix.com';
+const PAGE = 'book_landing';
+
+// Mount It Right's pixel, from Events Manager. Set it to anything that isn't
+// a run of digits (or empty) and the page logs events to the console instead
+// of sending them — which is how the funnel gets tested without polluting the
+// real numbers.
+const META_PIXEL_ID = '2228250118015941';
+
+// ---------------------------------------------------------------------------
+// Price list
+// ---------------------------------------------------------------------------
+const FALLBACK = {
+  size: [
+    { id:'size_under50',  label:'Up to 50 inch',  price:99,  note:'Bedroom and office sizes' },
+    { id:'size_51_65',    label:'51 to 65 inch',  price:139, note:'The most common living-room size' },
+    { id:'size_65_2tech', label:'65 inch and up', price:209, note:'Two technicians — the safe way to lift a panel this size' },
+    { id:'size_65_1tech', label:'65 inch and up, you help lift', price:169, note:'One technician. Only pick this if someone able-bodied can help.' },
+  ],
+  bracket: [
+    { id:'bracket_have',  label:'I already have one', price:0 },
+    { id:'bracket_fixed', label:'Fixed mount',        price:49, note:'Sits flat against the wall' },
+    { id:'bracket_tilt',  label:'Tilting mount',      price:69, note:'Angles down — good for mounting high' },
+    { id:'bracket_full',  label:'Full-motion mount',  price:99, note:'Swings out and turns' },
+  ],
+  wall: [
+    { id:'wall_standard', label:'Drywall, plaster or wood', price:0 },
+    { id:'wall_brick',    label:'Brick or concrete',        price:79 },
+    { id:'wall_stucco',   label:'Stucco',                   price:69 },
+  ],
+  wires: [
+    { id:'wires_exposed',  label:'Leave them showing',   price:0 },
+    { id:'wires_external', label:'Cover them with a sleeve', price:69, note:'Paintable channel down the wall' },
+    { id:'wires_inwall',   label:'Hide them inside the wall', price:169, note:'Nothing visible at all' },
+  ],
+  dismount: [
+    { id:'dismount_yes', label:'Yes, take the old one down', price:59 },
+    { id:'dismount_no',  label:'No, nothing to remove',      price:0 },
+  ],
+  addons: [
+    { id:'addon_soundbar',  label:'Soundbar installation',  price:99 },
+    { id:'addon_fireplace', label:'Above-fireplace mounting', price:99, note:'Heat-safe placement and cable routing' },
+    { id:'addon_shelf',     label:'Wall shelf',             price:59 },
+  ],
+};
+
+// The split that matters: the database owns the money, this page owns the
+// words. Admin labels are working shorthand — "51-65 inch", "Leave exposed" —
+// written for the person raising the invoice, not for a stranger who arrived
+// from an ad thirty seconds ago. So a known option keeps the copy below and
+// takes only its price from the API, while an option the admin adds later
+// still shows up, using whatever label was typed there.
+const COPY = {};
+for (const group of Object.keys(FALLBACK)) {
+  for (const o of FALLBACK[group]) COPY[o.id] = { label: o.label, note: o.note };
+}
+
+let PRICES = JSON.parse(JSON.stringify(FALLBACK));
+let ADDITIONAL_TV_DISCOUNT = 15;
+
+async function loadPrices(){
+  try {
+    const res = await fetch(API_BASE + '/api/prices');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    if(!data.ok || !data.groups) throw new Error('unexpected shape');
+
+    for (const group of Object.keys(PRICES)) {
+      const rows = data.groups[group];
+      if(!Array.isArray(rows) || !rows.length) continue;
+      PRICES[group] = rows.map(r => ({
+        id: r.id,
+        label: (COPY[r.id] && COPY[r.id].label) || r.label,
+        note: COPY[r.id] && COPY[r.id].note,
+        price: r.price,
+      }));
+    }
+    if(Number.isFinite(data.additionalTvDiscountPercent)){
+      ADDITIONAL_TV_DISCOUNT = data.additionalTvDiscountPercent;
+    }
+  } catch (err) {
+    // Fallback prices are already in place. Worth a console line, not worth
+    // a broken page in front of someone we paid to get here.
+    console.warn('Falling back to built-in prices:', err);
+  }
+  renderAllOptions();
+}
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+const TV_KEYS = ['size','bracket','wall','wires','dismount'];
+const current = { size:null, bracket:null, wall:null, wires:null, dismount:null };
+const tvs = [];                 // finished TVs; `current` is the one being configured
+const addons = new Set();
+
+let selectedAddress = null;
+let selectedSlot = null;
+const history = [];             // screens visited, for Back
+
+function optById(group, id){ return (PRICES[group] || []).find(o => o.id === id) || null; }
+function priceOf(group, id){ const o = optById(group, id); return o ? o.price : 0; }
+
+function tvPrice(tv){
+  return TV_KEYS.reduce((sum, key) => sum + (tv[key] ? priceOf(key, tv[key]) : 0), 0);
+}
+
+// Mirrors functions/_lib/pricing.js on the server exactly: dearest TV at full
+// price, every other one discounted, add-ons once per booking. The server
+// recalculates this anyway and its number is the one that counts — but the
+// two must agree, or the customer sees one price and gets charged another.
+function currentTotal(){
+  const all = [...tvs];
+  if(current.size) all.push({ ...current });
+  const prices = all.map(tvPrice).sort((a,b) => b - a);
+  let total = prices.reduce((sum, p, i) => sum + (i === 0 ? p : p * (1 - ADDITIONAL_TV_DISCOUNT / 100)), 0);
+  for (const id of addons) total += priceOf('addons', id);
+  return Math.round(total);
+}
+
+// ---------------------------------------------------------------------------
+// Option rendering
+// ---------------------------------------------------------------------------
+const GROUP_TO_CONTAINER = {
+  size:'optsSize', bracket:'optsBracket', wall:'optsWall',
+  wires:'optsWires', dismount:'optsDismount', addons:'optsAddons',
+};
+
+function priceTag(price, group){
+  if(price === 0) return '<span class="opt-price free">Included</span>';
+  const prefix = group === 'size' ? '' : '+';
+  return `<span class="opt-price">${prefix}$${price}</span>`;
+}
+
+function renderAllOptions(){
+  for (const group of Object.keys(GROUP_TO_CONTAINER)) {
+    const el = document.getElementById(GROUP_TO_CONTAINER[group]);
+    if(!el) continue;
+    const multi = group === 'addons';
+
+    el.innerHTML = (PRICES[group] || []).map(o => `
+      <button class="opt ${multi ? 'multi' : ''}" data-group="${group}" data-id="${o.id}">
+        <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <span class="opt-main">
+          <span class="opt-title">${o.label}</span>
+          ${o.note ? `<span class="opt-note">${o.note}</span>` : ''}
+        </span>
+        ${priceTag(o.price, group)}
+      </button>`).join('');
+
+    el.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => pick(btn.dataset.group, btn.dataset.id, btn));
+    });
+  }
+  paintSelections();
+}
+
+function paintSelections(){
+  document.querySelectorAll('.opt').forEach(btn => {
+    const g = btn.dataset.group, id = btn.dataset.id;
+    const on = g === 'addons' ? addons.has(id) : current[g] === id;
+    btn.classList.toggle('picked', on);
+  });
+}
+
+const NEXT_SCREEN = {
+  size:'sc-bracket', bracket:'sc-wall', wall:'sc-wires',
+  wires:'sc-dismount', dismount:'sc-price',
+};
+
+function pick(group, id, btn){
+  if(group === 'addons'){
+    addons.has(id) ? addons.delete(id) : addons.add(id);
+    btn.classList.toggle('picked');
+    updatePrice();
+    return;
+  }
+
+  current[group] = id;
+  paintSelections();
+  updatePrice();
+
+  if(group === 'size') track('ViewContent', { content_name: PAGE, content_category: 'booking_form' });
+
+  // A brief pause so the tick is actually seen before the screen moves —
+  // without it the selection feels like it never registered.
+  setTimeout(() => {
+    if(NEXT_SCREEN[group] === 'sc-price') showReveal();
+    else go(NEXT_SCREEN[group]);
+  }, 240);
+}
+
+// ---------------------------------------------------------------------------
+// Running price
+// ---------------------------------------------------------------------------
+const pricebar = document.getElementById('pricebar');
+const pricebarAmt = document.getElementById('pricebarAmt');
+let shownPrice = 0;
+
+function updatePrice(){
+  const total = currentTotal();
+  if(total > 0) pricebar.classList.add('show');
+  if(total === shownPrice) return;
+
+  countTo(pricebarAmt, shownPrice, total, 420);
+  pricebarAmt.classList.remove('bump');
+  void pricebarAmt.offsetWidth;       // restart the animation
+  pricebarAmt.classList.add('bump');
+  shownPrice = total;
+}
+
+function countTo(el, from, to, ms){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    el.textContent = '$' + to;
+    return;
+  }
+  const start = performance.now();
+  function frame(now){
+    const t = Math.min(1, (now - start) / ms);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = '$' + Math.round(from + (to - from) * eased);
+    if(t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------------------------------------------------------------------------
+// Screens
+// ---------------------------------------------------------------------------
+const ORDER = ['sc-size','sc-bracket','sc-wall','sc-wires','sc-dismount','sc-price',
+               'sc-extras','sc-address','sc-when','sc-name','sc-phone','sc-review','sc-done'];
+
+function go(id, isBack){
+  const from = document.querySelector('.screen.active');
+  if(from && !isBack) history.push(from.id);
+  if(from) from.classList.remove('active');
+
+  document.getElementById(id).classList.add('active');
+  document.getElementById('rail').style.width =
+    Math.round((ORDER.indexOf(id) + 1) / ORDER.length * 100) + '%';
+
+  // The running total is noise on the screens that show the price in full.
+  pricebar.style.display = (id === 'sc-price' || id === 'sc-done') ? 'none' : '';
+
+  if(id === 'sc-when'){
+    renderCalendar();
+    track('InitiateCheckout', { value: currentTotal(), currency: 'USD', num_items: tvCount() });
+  }
+  if(id === 'sc-name') track('ContactStep', { value: currentTotal(), currency: 'USD' });
+  if(id === 'sc-review') renderReview();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const firstInput = document.querySelector('#' + id + ' input[type="text"], #' + id + ' input[type="tel"]');
+  if(firstInput) setTimeout(() => firstInput.focus(), 340);
+}
+
+function goBack(){
+  const prev = history.pop();
+  if(prev) go(prev, true);
+}
+
+function tvCount(){ return tvs.length + (current.size ? 1 : 0); }
+
+function showReveal(){
+  go('sc-price');
+  const total = currentTotal();
+
+  const all = [...tvs];
+  if(current.size) all.push({ ...current });
+  const sorted = all.map(tvPrice).sort((a,b) => b - a);
+
+  // One TV gets itemised in full, including the parts that cost nothing. A
+  // single "$545" with no breakdown reads as a number someone made up; the
+  // same number with five lines under it reads as a quote — and the $0 lines
+  // are the ones that prove there is nothing hidden.
+  const rows = [];
+  if(all.length === 1){
+    for (const key of TV_KEYS) {
+      const o = optById(key, all[0][key]);
+      if(!o) continue;
+      rows.push(`<div class="line"><span>${o.label}</span><span>${
+        o.price ? '$' + o.price : '<span style="color:var(--level);">Included</span>'
+      }</span></div>`);
+    }
+  } else {
+    all.forEach((tv, i) => {
+      const label = optById('size', tv.size);
+      rows.push(`<div class="line"><span>TV ${i+1} — ${label ? label.label : 'mount'}</span><span>$${tvPrice(tv)}</span></div>`);
+    });
+  }
+  if(sorted.length > 1){
+    rows.push(`<div class="line"><span>Additional TVs</span><span style="color:var(--level);">−${ADDITIONAL_TV_DISCOUNT}%</span></div>`);
+  }
+  for (const id of addons) {
+    const o = optById('addons', id);
+    if(o) rows.push(`<div class="line"><span>${o.label}</span><span>$${o.price}</span></div>`);
+  }
+  rows.push(`<div class="line"><span>Trip fee</span><span style="color:var(--level);">$0</span></div>`);
+  rows.push(`<div class="line sum"><span>Total</span><span>$${total}</span></div>`);
+  document.getElementById('revealLines').innerHTML = rows.join('');
+
+  countTo(document.getElementById('revealNum'), 0, total, 900);
+}
+
+function addAnotherTv(){
+  if(current.size) tvs.push({ ...current });
+  TV_KEYS.forEach(k => current[k] = null);
+  paintSelections();
+  history.length = 0;
+  go('sc-size');
+}
+
+// ---------------------------------------------------------------------------
+// Address
+// ---------------------------------------------------------------------------
+const PHX = { lat:33.4484, lng:-112.0740 };
+const SERVICE_RADIUS_MILES = 35;
+
+function milesBetween(lat1, lng1, lat2, lng2){
+  const R = 3958.8;
+  const dLat = (lat2-lat1) * Math.PI/180, dLng = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function setAddressFlag(text, ok){
+  const flag = document.getElementById('addrFlag');
+  document.getElementById('addrFlagText').textContent = text;
+  flag.classList.toggle('ok', !!ok);
+  flag.classList.add('show');
+}
+
+function initAutocomplete(){
+  const el = document.getElementById('addrInput');
+  if(!el) return;
+  el.includedRegionCodes = ['us'];
+  el.locationBias = { radius: 48000, center: { lat: PHX.lat, lng: PHX.lng } };
+
+  el.addEventListener('gmp-select', async ({ placePrediction }) => {
+    const place = placePrediction.toPlace();
+    await place.fetchFields({ fields: ['formattedAddress','location'] });
+    if(!place.location) return;
+
+    const lat = place.location.lat(), lng = place.location.lng();
+    const distance = milesBetween(PHX.lat, PHX.lng, lat, lng);
+    const inArea = distance <= SERVICE_RADIUS_MILES;
+    selectedAddress = { line: place.formattedAddress, lat, lng, inArea };
+
+    setAddressFlag(
+      inArea
+        ? 'In our service area — ' + place.formattedAddress
+        : `That's about ${Math.round(distance)} miles out, past our usual area. Book anyway and we'll call to confirm we can make it.`,
+      inArea
+    );
+    document.getElementById('addrNext').disabled = false;
+  });
+
+  el.addEventListener('input', () => {
+    selectedAddress = null;
+    document.getElementById('addrNext').disabled = true;
+    document.getElementById('addrFlag').classList.remove('show');
+  });
+}
+window.initAutocomplete = initAutocomplete;
+
+// Blockers and flaky networks stop Google Maps from loading often enough to
+// plan for it. A dead address field on a page we paid for is a lost booking,
+// so after a few seconds fall back to a plain text box.
+setTimeout(() => {
+  if(window.google && window.google.maps) return;
+  const auto = document.getElementById('addrInput');
+  const plain = document.getElementById('addrFallback');
+  if(!plain || plain.style.display !== 'none') return;
+
+  if(auto) auto.style.display = 'none';
+  plain.style.display = 'block';
+  plain.addEventListener('input', () => {
+    const value = plain.value.trim();
+    selectedAddress = value.length > 8 ? { line: value, lat:null, lng:null, inArea:null } : null;
+    document.getElementById('addrNext').disabled = !selectedAddress;
+  });
+}, 4000);
+
+// ---------------------------------------------------------------------------
+// Calendar
+// ---------------------------------------------------------------------------
+const ALL_SLOTS = ['9:00 AM','11:00 AM','1:00 PM','3:00 PM','5:00 PM'];
+const TAKEN = {};
+let calCursor = new Date();
+let pickedDate = null;
+
+// Local date, not toISOString(). In Phoenix (UTC-7) an evening visitor would
+// otherwise be offered "today" when today is already tomorrow in UTC, and the
+// first slot they pick would be a day out.
+function dateKey(d){
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+async function loadAvailability(){
+  try {
+    const res = await fetch(API_BASE + '/api/availability');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    Object.assign(TAKEN, data.taken || {});
+  } catch (err) {
+    // Every slot shows as free. Better than an empty calendar: worst case the
+    // office moves one booking by a call.
+    console.warn('Availability unavailable:', err);
+  }
+}
+
+function renderCalendar(){
+  const grid = document.getElementById('calGrid');
+  const year = calCursor.getFullYear(), month = calCursor.getMonth();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  document.getElementById('calMonth').textContent =
+    calCursor.toLocaleString('en-US', { month:'long', year:'numeric' });
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let html = ['S','M','T','W','T','F','S'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for(let i = 0; i < firstDay; i++) html += '<button class="cal-day empty" disabled></button>';
+
+  for(let day = 1; day <= daysInMonth; day++){
+    const d = new Date(year, month, day);
+    const key = dateKey(d);
+    const past = d < today;
+    const full = (TAKEN[key] || []).length >= ALL_SLOTS.length;
+    html += `<button class="cal-day ${pickedDate === key ? 'picked' : ''}" ${past || full ? 'disabled' : ''} data-key="${key}">${day}</button>`;
+  }
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.cal-day[data-key]:not(:disabled)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pickedDate = btn.dataset.key;
+      selectedSlot = null;
+      document.getElementById('whenNext').disabled = true;
+      renderCalendar();
+      renderSlots();
+    });
+  });
+
+  const atCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+  document.getElementById('calPrev').disabled = atCurrentMonth;
+  if(pickedDate) renderSlots();
+}
+
+function renderSlots(){
+  const wrap = document.getElementById('slots');
+  if(!pickedDate){ wrap.innerHTML = ''; return; }
+
+  const taken = TAKEN[pickedDate] || [];
+  wrap.innerHTML = ALL_SLOTS.map(s => `
+    <button class="slot ${selectedSlot && selectedSlot.time === s ? 'picked' : ''}" ${taken.includes(s) ? 'disabled' : ''} data-slot="${s}">${s}</button>
+  `).join('');
+
+  wrap.querySelectorAll('.slot:not(:disabled)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedSlot = { date: pickedDate, time: btn.dataset.slot };
+      renderSlots();
+      document.getElementById('whenNext').disabled = false;
+    });
+  });
+}
+
+function shiftMonth(delta){
+  calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + delta, 1);
+  renderCalendar();
+}
+
+// ---------------------------------------------------------------------------
+// Name, phone, review
+// ---------------------------------------------------------------------------
+const nameInput = document.getElementById('nameInput');
+const phoneInput = document.getElementById('phoneInput');
+
+nameInput.addEventListener('input', () => {
+  document.getElementById('nameNext').disabled = nameInput.value.trim().length < 2;
+});
+
+phoneInput.addEventListener('input', () => {
+  const digits = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+  phoneInput.value = digits.length > 6 ? `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`
+                   : digits.length > 3 ? `(${digits.slice(0,3)}) ${digits.slice(3)}`
+                   : digits;
+  document.getElementById('phoneNext').disabled = digits.length !== 10;
+});
+
+// Enter moves forward, because a one-question-per-screen form that ignores the
+// return key feels broken on a phone keyboard.
+[['nameInput','nameNext'], ['phoneInput','phoneNext']].forEach(([input, button]) => {
+  document.getElementById(input).addEventListener('keydown', e => {
+    if(e.key !== 'Enter') return;
+    e.preventDefault();
+    const btn = document.getElementById(button);
+    if(!btn.disabled) btn.click();
+  });
+});
+
+function scheduleText(){
+  if(!selectedSlot) return 'We will call to agree a time';
+  const [y, m, d] = selectedSlot.date.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }) + ' at ' + selectedSlot.time;
+}
+
+function renderReview(){
+  const total = currentTotal();
+  const all = [...tvs];
+  if(current.size) all.push({ ...current });
+
+  const rows = all.map((tv, i) => {
+    const size = optById('size', tv.size);
+    return `<div class="line"><span>TV ${i+1} — ${size ? size.label : 'mount'}</span><span>$${tvPrice(tv)}</span></div>`;
+  });
+  for (const id of addons) {
+    const o = optById('addons', id);
+    if(o) rows.push(`<div class="line"><span>${o.label}</span><span>$${o.price}</span></div>`);
+  }
+  rows.push(`<div class="line"><span>When</span><span>${scheduleText()}</span></div>`);
+  rows.push(`<div class="line"><span>Where</span><span>${selectedAddress ? selectedAddress.line : '—'}</span></div>`);
+  rows.push(`<div class="line"><span>Who</span><span>${nameInput.value.trim()} · ${phoneInput.value}</span></div>`);
+  rows.push(`<div class="line sum"><span>Total</span><span>$${total}</span></div>`);
+
+  document.getElementById('reviewLines').innerHTML = rows.join('');
+}
+
+// ---------------------------------------------------------------------------
+// Attribution — which ad, which campaign, which creative
+// ---------------------------------------------------------------------------
+const ATTR_KEY = 'mir_attr';
+
+function readAttribution(){
+  const params = new URLSearchParams(location.search);
+  let stored = {};
+  try { stored = JSON.parse(sessionStorage.getItem(ATTR_KEY) || '{}'); } catch {}
+
+  const fields = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid'];
+  const fresh = {};
+  let sawAny = false;
+  for (const f of fields) {
+    const v = params.get(f);
+    if(v){ fresh[f] = v; sawAny = true; }
+  }
+
+  // A new set of tags wins; without any, whatever was captured on the way in
+  // survives, so wandering around the site doesn't erase where they came from.
+  const attr = sawAny ? fresh : stored;
+  attr.landing = attr.landing || (location.pathname + location.search);
+  attr.referrer = attr.referrer || document.referrer || null;
+  attr.firstSeen = attr.firstSeen || new Date().toISOString();
+  attr.page = PAGE;
+  attr.userAgent = navigator.userAgent;
+
+  try { sessionStorage.setItem(ATTR_KEY, JSON.stringify(attr)); } catch {}
+  return attr;
+}
+
+const ATTR = readAttribution();
+
+function sourceOf(attr){
+  if(attr.utm_source) return attr.utm_source;
+  if(attr.fbclid) return 'facebook';
+  if(attr.gclid) return 'google';
+  if(attr.referrer){
+    try { return new URL(attr.referrer).hostname.replace(/^www\./, ''); } catch { return 'referral'; }
+  }
+  return 'direct';
+}
+
+function readCookie(name){
+  const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+// ---------------------------------------------------------------------------
+// Meta Pixel
+// ---------------------------------------------------------------------------
+const PIXEL_LIVE = /^\d{10,20}$/.test(META_PIXEL_ID);
+
+if(PIXEL_LIVE){
+  /* eslint-disable */
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+  (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  /* eslint-enable */
+  fbq('init', META_PIXEL_ID);
+  fbq('track', 'PageView');
+} else {
+  console.info('[mir-track] pixel not configured — events go to the console only');
+  console.log('[mir-track] PageView');
+}
+
+const STANDARD_EVENTS = ['ViewContent','InitiateCheckout','Schedule','Lead','Purchase'];
+const fired = new Set();
+let scheduleEventId = null;
+
+function newEventId(){
+  return 'mir_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+function track(name, params, eventId){
+  // Everything except the booking itself fires once per page load: a person
+  // stepping back and forward through the funnel is one visit, not five.
+  if(name !== 'Schedule'){
+    if(fired.has(name)) return;
+    fired.add(name);
+  }
+
+  if(!PIXEL_LIVE){
+    console.log('[mir-track]', name, params || {}, eventId || '');
+    return;
+  }
+  // The options argument is left off entirely rather than passed as undefined:
+  // fbq inspects how many arguments it received, and a fourth one that happens
+  // to be undefined is not the same to it as no fourth one.
+  const method = STANDARD_EVENTS.includes(name) ? 'track' : 'trackCustom';
+  const args = [method, name, params || {}];
+  if(eventId) args.push({ eventID: eventId });
+  fbq.apply(null, args);
+}
+
+// ---------------------------------------------------------------------------
+// Submit
+// ---------------------------------------------------------------------------
+function confirmBooking(){
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Booking…';
+
+  const total = currentTotal();
+  const all = [...tvs];
+  if(current.size) all.push({ ...current });
+  all.sort((a,b) => tvPrice(b) - tvPrice(a));
+  const primary = all[0] || current;
+
+  const notes = all.length > 1
+    ? `${all.length} TVs this visit: ` + all.map((tv, i) => {
+        const size = optById('size', tv.size);
+        return `#${i+1} ${size ? size.label : 'size not set'} ($${tvPrice(tv)}${i > 0 ? `, ${ADDITIONAL_TV_DISCOUNT}% off` : ''})`;
+      }).join('; ') + '.'
+    : null;
+
+  scheduleEventId = newEventId();
+
+  const payload = {
+    address: selectedAddress ? selectedAddress.line : null,
+    lat: selectedAddress ? selectedAddress.lat : null,
+    lng: selectedAddress ? selectedAddress.lng : null,
+    inServiceArea: selectedAddress ? selectedAddress.inArea : null,
+    dismount: primary.dismount,
+    size: primary.size,
+    bracket: primary.bracket,
+    wall: primary.wall,
+    wires: primary.wires,
+    addons: [...addons],
+    total,
+    date: selectedSlot ? selectedSlot.date : null,
+    time: selectedSlot ? selectedSlot.time : null,
+    name: nameInput.value.trim(),
+    phone: phoneInput.value.replace(/\D/g, ''),
+    notes,
+    tvs: all,
+    smsConsent: document.getElementById('smsConsent').checked,
+
+    // Where this person came from, and what Facebook needs to match the
+    // server-side copy of this event to the browser one.
+    source: sourceOf(ATTR),
+    attribution: ATTR,
+    meta: {
+      pixelId: PIXEL_LIVE ? META_PIXEL_ID : null,
+      eventId: scheduleEventId,
+      eventName: 'Schedule',
+      fbp: readCookie('_fbp'),
+      fbc: readCookie('_fbc') || (ATTR.fbclid ? `fb.1.${Date.now()}.${ATTR.fbclid}` : null),
+    },
+  };
+
+  track('Schedule', { value: total, currency: 'USD', num_items: all.length }, scheduleEventId);
+
+  // The confirmation shows either way. A booking that saved but whose response
+  // never came back would otherwise look like a failure and get submitted
+  // twice; the office sees every booking in the admin regardless.
+  fetch(API_BASE + '/api/bookings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(err => console.warn('Booking save failed:', err));
+
+  document.getElementById('doneText').textContent = selectedSlot
+    ? `${scheduleText()}. We'll text you a confirmation and let you know when your installer is on the way.`
+    : `We'll text you within the hour to agree a time.`;
+  document.getElementById('donePrice').textContent = `$${total} · pay after the work`;
+
+  history.length = 0;
+  go('sc-done');
+}
+
+// ---------------------------------------------------------------------------
+// Start
+// ---------------------------------------------------------------------------
+renderAllOptions();
+loadPrices();
+loadAvailability();
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFuEDNTCkTwFAgASVteBOlMMx8RQQXj8A&libraries=places&callback=initAutocomplete&loading=async" async defer></script>
+</body>
+</html>
