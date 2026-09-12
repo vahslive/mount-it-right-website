@@ -11,7 +11,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="See your exact TV mounting price in about a minute. Phoenix and the Valley. Licensed, insured, one-year warranty.">
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230A0A0C'/%3E%3Crect x='9' y='24' width='5' height='9' rx='2.5' fill='%232F5EFF' opacity='0.55'/%3E%3Crect x='17.5' y='17' width='5' height='16' rx='2.5' fill='%232F5EFF' opacity='0.78'/%3E%3Crect x='26' y='8' width='5' height='25' rx='2.5' fill='%232F5EFF'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='none' stroke='%230A0A0C' stroke-width='1.4'/%3E%3Ccircle cx='20' cy='20' r='5' fill='%232F5EFF'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,8 +54,35 @@
     display:flex; align-items:center; justify-content:space-between;
     padding:18px 22px; max-width:720px; width:100%; margin:0 auto;
   }
-  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--display); font-weight:800; font-size:16.5px; letter-spacing:-0.01em; }
-  .brand svg{ width:30px; height:30px; flex:none; }
+  /* The Mount It Right mark: a little television set with the name on the
+     screen and a power LED on the bezel. Same one as the homepage, so someone
+     arriving from an ad and someone arriving from search see one company. */
+  .tv-logo{ display:inline-flex; align-items:center; }
+  .tv-frame{
+    position:relative;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    padding:4px;
+    display:inline-flex;
+  }
+  .tv-frame::after{
+    content:'';
+    position:absolute; right:9px; bottom:-3px;
+    width:5px; height:5px; border-radius:50%;
+    background:var(--signal);
+    box-shadow:0 0 4px rgba(47,94,255,0.65);
+  }
+  .tv-screen{
+    background:#000;
+    width:80px; aspect-ratio:16/9;
+    padding:0 0 0 10px;
+    display:flex; flex-direction:column; justify-content:center; align-items:flex-start;
+    line-height:0.86;
+    box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.11), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .tv-screen span{ font-family:var(--display); font-weight:700; font-size:11px; letter-spacing:0.02em; }
+  .tv-screen .white{ color:#fff; }
+  .tv-screen .blue{ color:var(--signal); }
   .call{
     display:inline-flex; align-items:center; gap:7px; text-decoration:none;
     color:var(--ink); font-size:13.5px; font-weight:600;
@@ -307,14 +334,16 @@
 <body>
 
 <header class="top">
-  <div class="brand">
-    <svg viewBox="0 0 40 40" aria-hidden="true">
-      <rect width="40" height="40" rx="10" fill="#0A0A0C"/>
-      <rect x="9" y="24" width="5" height="9" rx="2.5" fill="#2F5EFF" opacity="0.55"/>
-      <rect x="17.5" y="17" width="5" height="16" rx="2.5" fill="#2F5EFF" opacity="0.78"/>
-      <rect x="26" y="8" width="5" height="25" rx="2.5" fill="#2F5EFF"/>
-    </svg>
-    Mount It Right
+  <!-- Not a link. Paid traffic gets two ways off this page: the form, or the
+       phone. A clickable logo is a third, and it leads away from both. -->
+  <div class="tv-logo" role="img" aria-label="Mount It Right">
+    <span class="tv-frame">
+      <span class="tv-screen">
+        <span class="white">Mount</span>
+        <span class="white">it</span>
+        <span class="blue">Right</span>
+      </span>
+    </span>
   </div>
   <a class="call" href="tel:+16237920747">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
