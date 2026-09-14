@@ -34,7 +34,7 @@
   "image": "https://images.pexels.com/photos/6020432/pexels-photo-6020432.jpeg",
   "url": "https://mountitright.com/",
   "telephone": "+1-623-792-0747",
-  "priceRange": "$99-$615",
+  "priceRange": "$99-$905",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Phoenix",
@@ -603,12 +603,16 @@
               <div class="right"><span class="price">$139</span><div class="mark"></div></div>
             </div>
             <div class="opt-card" data-shape="radio" data-step="size" data-id="size_65_2tech" data-price="209">
-              <span class="label">65″+ (2 technicians)</span>
+              <span class="label">65″–84″ (2 technicians)</span>
               <div class="right"><span class="price">$209</span><div class="mark"></div></div>
             </div>
             <div class="opt-card" data-shape="radio" data-step="size" data-id="size_65_1tech" data-price="169">
-              <span class="label">65″+ (1 tech, with your help)</span>
+              <span class="label">65″–84″ (1 tech, with your help)</span>
               <div class="right"><span class="price">$169</span><div class="mark"></div></div>
+            </div>
+            <div class="opt-card" data-shape="radio" data-step="size" data-id="size_85_plus" data-price="299">
+              <span class="label">85″ and up (2 technicians)</span>
+              <div class="right"><span class="price">$299</span><div class="mark"></div></div>
             </div>
           </div>
 
@@ -640,6 +644,18 @@
             <div class="opt-card" data-shape="radio" data-step="bracket" data-id="bracket_full" data-price="99">
               <span class="label">Full-motion mount</span>
               <div class="right"><span class="price">+$99</span><div class="mark"></div></div>
+            </div>
+            <div class="opt-card" data-shape="radio" data-step="bracket" data-id="bracket_fixed_xl" data-price="129">
+              <span class="label">Fixed mount <small style="opacity:.7;">(heavy duty)</small></span>
+              <div class="right"><span class="price">+$129</span><div class="mark"></div></div>
+            </div>
+            <div class="opt-card" data-shape="radio" data-step="bracket" data-id="bracket_tilt_xl" data-price="159">
+              <span class="label">Tilting mount <small style="opacity:.7;">(heavy duty)</small></span>
+              <div class="right"><span class="price">+$159</span><div class="mark"></div></div>
+            </div>
+            <div class="opt-card" data-shape="radio" data-step="bracket" data-id="bracket_full_xl" data-price="199">
+              <span class="label">Full-motion mount <small style="opacity:.7;">(heavy duty)</small></span>
+              <div class="right"><span class="price">+$199</span><div class="mark"></div></div>
             </div>
           </div>
           <div class="step-nav">
@@ -819,11 +835,11 @@
     <div class="services-grid">
       <div class="svc">
         <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg>
-        <h3>TV Mounting</h3><p>Priced by screen size, from a standard TV to a 65″+ with a second technician.</p><div class="price">$99–$209</div><div class="add">Start your quote →</div>
+        <h3>TV Mounting</h3><p>Priced by screen size, from a bedroom set to an 85″+ needing two technicians.</p><div class="price">$99–$299</div><div class="add">Start your quote →</div>
       </div>
       <div class="svc">
         <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16"/><path d="M4 15l4-4 3 3 5-6 4 5"/></svg>
-        <h3>Mount &amp; Bracket</h3><p>Don't have one? We bring a fixed, tilting, or full-motion mount.</p><div class="price">$0–$99</div><div class="add">Start your quote →</div>
+        <h3>Mount &amp; Bracket</h3><p>Don't have one? We bring a fixed, tilting, or full-motion mount.</p><div class="price">$0–$199</div><div class="add">Start your quote →</div>
       </div>
       <div class="svc">
         <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>
@@ -1115,12 +1131,16 @@
       { id:'size_51_65',    price:139 },
       { id:'size_65_2tech', price:209 },
       { id:'size_65_1tech', price:169 },
+      { id:'size_85_plus',  price:299 },
     ]},
     bracket: { type:'single', options:[
       { id:'bracket_have',  price:0  },
       { id:'bracket_fixed', price:49 },
       { id:'bracket_tilt',  price:69 },
       { id:'bracket_full',  price:99 },
+      { id:'bracket_fixed_xl', price:129 },
+      { id:'bracket_tilt_xl',  price:159 },
+      { id:'bracket_full_xl',  price:199 },
     ]},
     wall: { type:'single', options:[
       { id:'wall_standard', price:0  },
@@ -1387,6 +1407,31 @@
     }
   }
 
+  // Heavy-duty mounts exist for 85-inch panels and nothing else; standard ones
+  // are not rated to hold them. Showing the whole list to everyone is how a
+  // 98-inch television ends up on a bracket meant for a 55 — so the step only
+  // offers what fits the size already chosen.
+  const XL_BRACKETS = ['bracket_fixed_xl','bracket_tilt_xl','bracket_full_xl'];
+  const STD_BRACKETS = ['bracket_fixed','bracket_tilt','bracket_full'];
+
+  function filterBrackets(){
+    const xl = selections.size === 'size_85_plus';
+    const hide = xl ? STD_BRACKETS : XL_BRACKETS;
+
+    document.querySelectorAll('.opt-card[data-step="bracket"]').forEach(card => {
+      const off = hide.includes(card.dataset.id);
+      card.style.display = off ? 'none' : '';
+      // A hidden card must not stay selected, or the quote carries a mount
+      // that was never on screen.
+      if(off && card.classList.contains('picked')){
+        card.classList.remove('picked');
+        selections.bracket = null;
+        const next4 = document.getElementById('next4');
+        if(next4) next4.disabled = true;
+      }
+    });
+  }
+
   function goStep(n){
     for(let i = 1; i <= TOTAL_STEPS; i++){
       document.getElementById('step-'+i).classList.toggle('active', i === n);
@@ -1394,6 +1439,7 @@
     document.getElementById('step-moretv').classList.remove('active');
     fill.style.width = (n / TOTAL_STEPS * 100) + '%';
     stepMeta.textContent = `Step ${n} of ${TOTAL_STEPS} — ${STEP_TITLES[n]}`;
+    if(n === 4) filterBrackets();
     if(n === 8) renderCalendar();
     if(n === 9) renderFinalQuote();
 
@@ -1418,8 +1464,10 @@
   const OPTION_LABELS = {
     dismount_yes: 'Old TV removal', dismount_no: null,
     size_under50: 'Mount — up to 50″', size_51_65: 'Mount — 51–65″',
-    size_65_2tech: 'Mount — 65″+ (2 techs)', size_65_1tech: 'Mount — 65″+ (1 tech)',
+    size_65_2tech: 'Mount — 65″–84″ (2 techs)', size_65_1tech: 'Mount — 65″–84″ (1 tech)',
+    size_85_plus: 'Mount — 85″+ (2 techs)',
     bracket_have: null, bracket_fixed: 'Fixed bracket', bracket_tilt: 'Tilting bracket', bracket_full: 'Full-motion bracket',
+    bracket_fixed_xl: 'Fixed bracket (heavy duty)', bracket_tilt_xl: 'Tilting bracket (heavy duty)', bracket_full_xl: 'Full-motion bracket (heavy duty)',
     wall_standard: null, wall_brick: 'Brick/concrete anchors', wall_stucco: 'Stucco anchors',
     wires_exposed: null, wires_external: 'External cord sleeve', wires_inwall: 'In-wall cord concealment',
     addon_soundbar: 'Soundbar installation', addon_fireplace: 'Above-fireplace mounting', addon_shelf: 'Wall shelf',
@@ -1618,7 +1666,7 @@
   nameInput.addEventListener('input', validateContact);
   phoneInput.addEventListener('input', validateContact);
 
-  const SIZE_LABELS = { size_under50:'Up to 50″', size_51_65:'51–65″', size_65_2tech:'65″+ (2 tech)', size_65_1tech:'65″+ (1 tech)' };
+  const SIZE_LABELS = { size_under50:'Up to 50″', size_51_65:'51–65″', size_65_2tech:'65″–84″ (2 tech)', size_65_1tech:'65″–84″ (1 tech)', size_85_plus:'85″+ (2 tech)' };
 
   function submitBooking(){
     const total = currentTotal();
