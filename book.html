@@ -582,6 +582,18 @@ const PAGE = 'book_landing';
 // real numbers.
 const META_PIXEL_ID = '2228250118015941';
 
+// Google Ads. Two separate things: the account tag (AW-…) and a label per
+// conversion action, both copied out of Google Ads once the actions exist.
+// Until they do, conversions are logged to the console like everything else,
+// so the funnel can be tested without an account.
+//
+// Two actions rather than one, for the same reason Meta optimises on Initiate
+// Checkout first: bookings are too rare at this budget to teach a bidding
+// algorithm anything, and reaching the calendar happens often enough to.
+const GOOGLE_ADS_ID = 'AW-REPLACE';
+const GOOGLE_LABEL_BOOKING = 'REPLACE_ME';   // primary — a booking
+const GOOGLE_LABEL_QUOTE = '';               // secondary — reached the calendar
+
 // ---------------------------------------------------------------------------
 // Price list
 // ---------------------------------------------------------------------------
@@ -859,6 +871,7 @@ function go(id, isBack){
   if(id === 'sc-when'){
     renderCalendar();
     track('InitiateCheckout', { value: currentTotal(), currency: 'USD', num_items: tvCount() });
+    trackGoogle(GOOGLE_LABEL_QUOTE, currentTotal());
   }
   if(id === 'sc-name') track('ContactStep', { value: currentTotal(), currency: 'USD' });
 
@@ -1236,6 +1249,39 @@ if(PIXEL_LIVE){
   console.log('[mir-track] PageView');
 }
 
+const GOOGLE_LIVE = /^AW-\d{9,12}$/.test(GOOGLE_ADS_ID);
+
+if(GOOGLE_LIVE){
+  const tag = document.createElement('script');
+  tag.async = true;
+  tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GOOGLE_ADS_ID;
+  document.head.appendChild(tag);
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ window.dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', GOOGLE_ADS_ID);
+}
+
+/**
+ * Reports a conversion to Google Ads.
+ *
+ * transaction_id is the same id the booking carries everywhere else, which is
+ * what stops one booking being counted twice when someone reloads the
+ * confirmation page.
+ */
+function trackGoogle(label, value, transactionId){
+  if(!label) return;
+  console.log('[mir-google]', label, value || '', transactionId || '');
+  if(!GOOGLE_LIVE) return;
+  gtag('event', 'conversion', {
+    send_to: `${GOOGLE_ADS_ID}/${label}`,
+    value: value || 0,
+    currency: 'USD',
+    transaction_id: transactionId || '',
+  });
+}
+
 const STANDARD_EVENTS = ['ViewContent','InitiateCheckout','Schedule','Lead','Purchase'];
 const fired = new Set();
 let scheduleEventId = null;
@@ -1325,6 +1371,7 @@ function confirmBooking(){
   };
 
   track('Schedule', { value: total, currency: 'USD', num_items: all.length }, scheduleEventId);
+  trackGoogle(GOOGLE_LABEL_BOOKING, total, scheduleEventId);
 
   // The confirmation shows either way. A booking that saved but whose response
   // never came back would otherwise look like a failure and get submitted
