@@ -590,7 +590,7 @@ const META_PIXEL_ID = '2228250118015941';
 // Two actions rather than one, for the same reason Meta optimises on Initiate
 // Checkout first: bookings are too rare at this budget to teach a bidding
 // algorithm anything, and reaching the calendar happens often enough to.
-const GOOGLE_ADS_ID = 'AW-REPLACE';
+const GOOGLE_ADS_ID = 'AW-16913151268';
 const GOOGLE_LABEL_BOOKING = 'REPLACE_ME';   // primary — a booking
 const GOOGLE_LABEL_QUOTE = '';               // secondary — reached the calendar
 
@@ -1271,7 +1271,9 @@ if(GOOGLE_LIVE){
  * confirmation page.
  */
 function trackGoogle(label, value, transactionId){
-  if(!label) return;
+  // An unset label is not a conversion. With the account tag live, sending one
+  // anyway would fire a real event against an action that does not exist.
+  if(!label || label === 'REPLACE_ME') return;
   console.log('[mir-google]', label, value || '', transactionId || '');
   if(!GOOGLE_LIVE) return;
   gtag('event', 'conversion', {
