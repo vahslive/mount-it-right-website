@@ -951,6 +951,13 @@
   const PAGE = 'home';
   const META_PIXEL_ID = '2228250118015941';
 
+  // Google Ads. Same pattern as the pixel: an account tag and a label per
+  // conversion action, both copied out of Google Ads. Left unset, conversions
+  // only reach the console.
+  const GOOGLE_ADS_ID = 'AW-REPLACE';
+  const GOOGLE_LABEL_BOOKING = 'REPLACE_ME';
+  const GOOGLE_LABEL_QUOTE = '';
+
   const ATTR = (function(){
     const params = new URLSearchParams(location.search);
     let stored = {};
@@ -1004,6 +1011,34 @@
     fbq('track', 'PageView');
   } else {
     console.log('[mir-track] PageView (pixel not configured)');
+  }
+
+  const GOOGLE_LIVE = /^AW-\d{9,12}$/.test(GOOGLE_ADS_ID);
+
+  if(GOOGLE_LIVE){
+    const tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GOOGLE_ADS_ID;
+    document.head.appendChild(tag);
+
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ window.dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', GOOGLE_ADS_ID);
+  }
+
+  // transaction_id is the booking's own id, which is what keeps a reloaded
+  // confirmation page from being counted as a second sale.
+  function trackGoogle(label, value, transactionId){
+    if(!label) return;
+    console.log('[mir-google]', label, value || '', transactionId || '');
+    if(!GOOGLE_LIVE) return;
+    gtag('event', 'conversion', {
+      send_to: `${GOOGLE_ADS_ID}/${label}`,
+      value: value || 0,
+      currency: 'USD',
+      transaction_id: transactionId || '',
+    });
   }
 
   const STANDARD_EVENTS = ['ViewContent','InitiateCheckout','Schedule','Lead','Purchase'];
@@ -1447,7 +1482,10 @@
     // typing an address; step 8 is the calendar, which is the closest thing
     // this form has to a checkout; step 9 is contact details.
     if(n === 2) track('ViewContent', { content_name: PAGE, content_category: 'booking_form' });
-    if(n === 8) track('InitiateCheckout', { value: currentTotal(), currency: 'USD', num_items: tvs.length + (selections.size ? 1 : 0) });
+    if(n === 8){
+      track('InitiateCheckout', { value: currentTotal(), currency: 'USD', num_items: tvs.length + (selections.size ? 1 : 0) });
+      trackGoogle(GOOGLE_LABEL_QUOTE, currentTotal());
+    }
     if(n === 9) track('ContactStep', { value: currentTotal(), currency: 'USD' });
 
     // Only reposition the page if the form has actually scrolled out of view —
@@ -1739,6 +1777,7 @@
     };
 
     track('Schedule', { value: payload.total, currency: 'USD', num_items: allTvs.length }, scheduleEventId);
+    trackGoogle(GOOGLE_LABEL_BOOKING, payload.total, scheduleEventId);
 
     fetch(API_BASE + '/api/bookings', {
       method: 'POST',
