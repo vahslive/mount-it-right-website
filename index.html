@@ -954,7 +954,7 @@
   // Google Ads. Same pattern as the pixel: an account tag and a label per
   // conversion action, both copied out of Google Ads. Left unset, conversions
   // only reach the console.
-  const GOOGLE_ADS_ID = 'AW-REPLACE';
+  const GOOGLE_ADS_ID = 'AW-16913151268';
   const GOOGLE_LABEL_BOOKING = 'REPLACE_ME';
   const GOOGLE_LABEL_QUOTE = '';
 
@@ -1030,7 +1030,9 @@
   // transaction_id is the booking's own id, which is what keeps a reloaded
   // confirmation page from being counted as a second sale.
   function trackGoogle(label, value, transactionId){
-    if(!label) return;
+    // An unset label is not a conversion. With the account tag live, sending
+    // one anyway would fire a real event against an action that does not exist.
+    if(!label || label === 'REPLACE_ME') return;
     console.log('[mir-google]', label, value || '', transactionId || '');
     if(!GOOGLE_LIVE) return;
     gtag('event', 'conversion', {
