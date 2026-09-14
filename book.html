@@ -589,14 +589,18 @@ const FALLBACK = {
   size: [
     { id:'size_under50',  label:'Up to 50 inch',  price:99,  note:'Bedroom and office sizes' },
     { id:'size_51_65',    label:'51 to 65 inch',  price:139, note:'The most common living-room size' },
-    { id:'size_65_2tech', label:'65 inch and up', price:209, note:'Two technicians — the safe way to lift a panel this size' },
-    { id:'size_65_1tech', label:'65 inch and up, you help lift', price:169, note:'One technician. Only pick this if someone able-bodied can help.' },
+    { id:'size_65_2tech', label:'65 to 84 inch', price:209, note:'Two technicians — the safe way to lift a panel this size' },
+    { id:'size_65_1tech', label:'65 to 84 inch, you help lift', price:169, note:'One technician. Only pick this if someone able-bodied can help.' },
+    { id:'size_85_plus',  label:'85 inch and up', price:299, note:'Two technicians and heavy-duty hardware. No one-person option at this weight.' },
   ],
   bracket: [
     { id:'bracket_have',  label:'I already have one', price:0 },
     { id:'bracket_fixed', label:'Fixed mount',        price:49, note:'Sits flat against the wall' },
     { id:'bracket_tilt',  label:'Tilting mount',      price:69, note:'Angles down — good for mounting high' },
     { id:'bracket_full',  label:'Full-motion mount',  price:99, note:'Swings out and turns' },
+    { id:'bracket_fixed_xl', label:'Fixed mount',       price:129, note:'Heavy duty — rated for a panel this size' },
+    { id:'bracket_tilt_xl',  label:'Tilting mount',     price:159, note:'Heavy duty. Angles down — good for mounting high' },
+    { id:'bracket_full_xl',  label:'Full-motion mount', price:199, note:'Heavy duty. Swings out and turns' },
   ],
   wall: [
     { id:'wall_standard', label:'Drywall, plaster or wood', price:0 },
@@ -630,6 +634,19 @@ for (const group of Object.keys(FALLBACK)) {
   for (const o of FALLBACK[group]) COPY[o.id] = { label: o.label, note: o.note };
 }
 
+// Which brackets go with which sizes, used when the price list can't be
+// reached. The database carries the same mapping; this only has to survive an
+// outage, not be edited.
+const STANDARD_SIZES = ['size_under50','size_51_65','size_65_2tech','size_65_1tech'];
+const FALLBACK_REQUIRES = {
+  bracket_have: [...STANDARD_SIZES, 'size_85_plus'],
+  bracket_fixed: STANDARD_SIZES, bracket_tilt: STANDARD_SIZES, bracket_full: STANDARD_SIZES,
+  bracket_fixed_xl: ['size_85_plus'], bracket_tilt_xl: ['size_85_plus'], bracket_full_xl: ['size_85_plus'],
+};
+for (const group of Object.keys(FALLBACK)) {
+  for (const o of FALLBACK[group]) o.requiresSize = FALLBACK_REQUIRES[o.id] || null;
+}
+
 let PRICES = JSON.parse(JSON.stringify(FALLBACK));
 let ADDITIONAL_TV_DISCOUNT = 15;
 
@@ -648,6 +665,10 @@ async function loadPrices(){
         label: (COPY[r.id] && COPY[r.id].label) || r.label,
         note: COPY[r.id] && COPY[r.id].note,
         price: r.price,
+        // Which TV sizes this option is offered for. A bracket rated for a
+        // 98-inch panel has no business appearing under a 43-inch set, and a
+        // standard one must not be sellable for an 85.
+        requiresSize: r.requiresSize || null,
       }));
     }
     if(Number.isFinite(data.additionalTvDiscountPercent)){
@@ -713,7 +734,13 @@ function renderAllOptions(){
     if(!el) continue;
     const multi = group === 'addons';
 
-    el.innerHTML = (PRICES[group] || []).map(o => `
+    // An option that names sizes only appears once one of them is chosen.
+    // Before a size is picked there is nothing to filter against, so the
+    // unconstrained options show and the rest wait.
+    const visible = (PRICES[group] || []).filter(o =>
+      !o.requiresSize || (current.size && o.requiresSize.includes(current.size)));
+
+    el.innerHTML = visible.map(o => `
       <button class="opt ${multi ? 'multi' : ''}" data-group="${group}" data-id="${o.id}">
         <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
         <span class="opt-main">
@@ -752,6 +779,18 @@ function pick(group, id, btn){
   }
 
   current[group] = id;
+
+  // A different size means a different bracket shelf. Anything already picked
+  // that no longer applies is dropped rather than silently carried into the
+  // order — an 85-inch panel on a mount rated for 55 is how a television ends
+  // up on the floor.
+  if(group === 'size'){
+    const stillValid = (PRICES.bracket || []).some(o =>
+      o.id === current.bracket && (!o.requiresSize || o.requiresSize.includes(id)));
+    if(current.bracket && !stillValid) current.bracket = null;
+    renderAllOptions();
+  }
+
   paintSelections();
   updatePrice();
 
